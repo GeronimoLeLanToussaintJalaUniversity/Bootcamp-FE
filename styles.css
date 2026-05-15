@@ -17,14 +17,14 @@
 }
 
 .grid {
-  padding: 30px;
+  padding: 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
 .topbar {
- padding: 2rem;
+ padding: 3rem;
   background: #6ee09e;
 }
 .card{
@@ -34,4 +34,14 @@
 }
 body{
   margin:0;
+}
+.content-topbar{
+  padding: 1.5rem;
+  background: #ffb36b;
+}
+.content-topbar2
+{
+  padding: 1.5rem;
+  background: #e74444;
+
 }
