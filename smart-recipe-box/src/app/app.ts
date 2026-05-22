@@ -10,16 +10,21 @@ import { MOCK_RECIPES } from './mock-recipes';
   styleUrl: './app.css'
 })
 export class App {
-    protected readonly recipe = signal(MOCK_RECIPES[0] as RecipeModel);
-    protected readonly title = signal('My Recipe Box');
+  protected readonly recipe = signal(MOCK_RECIPES[0] as RecipeModel);
+  protected readonly title = signal('My Recipe Box');
   protected showSpaghetti(): void {
-     this.recipe.set(MOCK_RECIPES[0] as RecipeModel);
-    }
-     protected showSalad(): void {
-      this.recipe.set(MOCK_RECIPES[1] as RecipeModel);
-    }
-    
-
+    this.recipe.set(MOCK_RECIPES[0] as RecipeModel);
+  }
+  protected showSalad(): void {
+    this.recipe.set(MOCK_RECIPES[1] as RecipeModel);
+  }
+  protected readonly servings = signal(1);
+  protected increment(): void {
+    this.servings.update(current => current + 1);
+  }
+  protected decrement(): void {
+    this.servings.update(current => current - 1);
+  }
 }
 
 
