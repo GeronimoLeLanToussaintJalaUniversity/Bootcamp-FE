@@ -6,3 +6,9 @@
 <p>Servings: {{ servings() }}</p>
 <button (click)="increment()">+</button>
 <button (click)="decrement()">-</button>
+  <h3>Ingredientes:</h3>
+  <ul>
+    @for (ingredient of adjustedIngredients(); track ingredient.name) {
+      <li>{{ ingredient.name }}: {{ ingredient.quantity }} {{ ingredient.unit }}</li>
+    }
+  </ul>
