@@ -9,4 +9,14 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('My Recipe Box');
+  protected showSpaghetti(): void {
+      console.log("Ver Spaghetti Carbonara");
+    }
+     protected showSalad(): void {
+      console.log("Ver Caprese Salad");
+    }
 }
+
+
+
+
