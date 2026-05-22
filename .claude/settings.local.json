@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "mcp__angular-cli__list_projects",
+      "mcp__angular-cli__ai_tutor"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "angular-cli"
+  ]
+}
