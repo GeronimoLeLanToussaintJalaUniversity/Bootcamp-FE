@@ -2,6 +2,7 @@
 <button (click)="showSpaghetti()">Ver Spaghetti Carbonara</button>
 <button (click)="showSalad()">Ver Caprese Salad</button>
 <h2>Receta: {{ recipe().name }}</h2>
+<img [src]="recipe().imgUrl" alt="{{ recipe().name }}" width="300">
 <p>Descripción: {{ recipe().description }}</p>
 <p>Servings: {{ servings() }}</p>
 <button (click)="increment()">+</button>
