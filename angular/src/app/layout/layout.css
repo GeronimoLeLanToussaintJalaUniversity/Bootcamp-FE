@@ -1,0 +1,52 @@
+:host {
+  display: block;
+}
+
+.container {
+  background: #cfcfcf;
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  flex: 1;
+  background: #12e9d0;
+}
+
+.content {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  background: #cfcfcf;
+}
+
+.topbar {
+  padding: 3rem;
+  background: #6ee09e;
+}
+
+.content-topbar {
+  padding: 1.5rem;
+  background: #ffb36b;
+}
+
+.content-topbar2 {
+  padding: 1.5rem;
+  background: #e74444;
+}
+
+.grid {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.card {
+  background: #ffffad;
+  aspect-ratio: 2/1;
+}
+.sidebar.collapsed {
+  flex: 0.05;
+  overflow: hidden;
+}
