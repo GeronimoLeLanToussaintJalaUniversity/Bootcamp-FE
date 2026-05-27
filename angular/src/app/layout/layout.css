@@ -47,6 +47,6 @@
   aspect-ratio: 2/1;
 }
 .sidebar.collapsed {
-  flex: 0.05;
+  flex: 0.4;
   overflow: hidden;
 }
