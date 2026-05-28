@@ -1,4 +1,4 @@
-import { Component, signal,computed,HostListener } from '@angular/core';
+import { Component, signal, computed, HostListener, inject } from '@angular/core';
 
 @Component({
   selector: 'app-layout',
@@ -11,13 +11,15 @@ export class Layout {
 
   sidebarVisible = computed(() => {
     if (this.manualOverride() !== null) return this.manualOverride();
-    return this.windowWidth() > 768;
+    return this.windowWidth() > 800;
   });
 
   @HostListener('window:resize')
   onResize() {
     this.windowWidth.set(window.innerWidth);
-    this.manualOverride.set(null); 
+    if (this.manualOverride() ) {
+      this.manualOverride.set(null);
+    }
   }
 
   toggleSidebar() {
