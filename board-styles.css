@@ -10,7 +10,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-    gap: 0.1rem;
 }
 
 .right-column {
@@ -42,14 +41,6 @@
     grid-column: 1;
     grid-row: 3;
 }
-
-.right-column>div {
-    grid-column: 2;
-    border: 0.3rem solid #33dbf8;
-    background-color: #192594;
-}
-
-
 
 .center-column {
     display: flex;
