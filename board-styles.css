@@ -5,50 +5,42 @@
     height: 100vh;
 }
 
-.left-column {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-    gap: 0.1rem;
-}
-
-
-.left-column>div {
-    grid-column: 2;
-    border: 0.3rem solid #33dbf8;
-    background-color: #192594;
-}
-.left-column > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1rem;
-}
-.right-column > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1rem;
-}
-.left-column>.icon-arrow {
-    grid-column: 1;
-    grid-row: 3;
-}
-
-.left-column>.icon-shield {
-    grid-column: 2;
-    grid-row: 3;
-}
-
+.left-column,
 .right-column {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
     gap: 0.1rem;
-  transform: scale(-1);
-    /* transform: scaleY(-1); */
+}
+
+.right-column {
+    transform: scale(-1);
+}
+
+
+.left-column>div,
+.right-column>div {
+    grid-column: 2;
+    border: 0.3rem solid #33dbf8;
+    background-color: #192594;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+}
+
+
+.left-column>.icon-arrow,
+.right-column>.icon-arrow {
+    grid-column: 1;
+    grid-row: 3;
+}
+
+.right-column>.icon-arrow,
+.left-column>.icon-arrow {
+    grid-column: 1;
+    grid-row: 3;
 }
 
 .right-column>div {
@@ -57,19 +49,28 @@
     background-color: #192594;
 }
 
-.right-column>.icon-arrow {
-    grid-column: 1;
-    grid-row: 3;
-}
 
-.right-column>.icon-shield {
-    grid-column: 2;
-    grid-row: 3;
-}
+
 .center-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
+.board-top,
+.board-bottom {
+    display: grid;
+    grid-template-columns: repeat(5, calc(100vw / 9));
+    grid-template-rows: repeat(2, calc(100vh / 7));
+}
+
+.card-slot {
+    border: 0.3rem solid #33dbf8;
+    background-color: #192594;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
