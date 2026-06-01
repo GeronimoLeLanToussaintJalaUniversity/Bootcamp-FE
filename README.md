@@ -75,6 +75,38 @@ Open `http://localhost:4200` in your browser to verify everything is working.
 
 ---
 
+## Experience
+ 
+The overall experience was very satisfying. Each module came with clear explanations of what to accomplish, and any questions that came up along the way were addressed promptly. The AI also reviewed the code regularly and offered hints when you were stuck rather than handing out answers directly, which encouraged genuine learning.
+ 
+### Known Issues
+ 
+#### MCP Disconnection
+ 
+After a power outage, the Angular MCP server was found to be disconnected on the next session. Claude continued delivering modules as if nothing had changed, but the tutoring quality dropped noticeably — it started providing more complete solutions instead of guiding you to think through the problem yourself. Always verify the MCP connection is active at the start of each session by running `/mcp`.
+ 
+#### Module 11 Skipped
+ 
+The AI decided to skip Module 11, claiming it had already been completed based on the current state of the code:
+
+
+● Module 11's two checkpoints are both met in your recipe-card component:
+
+  Checkpoint 11a — @for iterating over adjustedIngredients:
+
+  <!-- recipe-card.html -->
+  <ul>
+      @for (ingredient of adjustedIngredients(); track ingredient.name) {
+          <li>{{ ingredient.name }}: {{ ingredient.quantity }} {{ ingredient.unit }}</li>
+      }
+  </ul>
+
+  Checkpoint 11b — No <pre> tag and no JsonPipe import anywhere in the component. Both were temporary dev tools that the module requires you to remove, and
+  your files never had them.
+
+  That's it — both conditions satisfied, Module 11 is done.
+---
+
 ## Smart Recipe Box — Learning Journey
 
 A step-by-step Angular v21 project built through a guided tutorial. Each module introduces a new concept applied directly to this application.
