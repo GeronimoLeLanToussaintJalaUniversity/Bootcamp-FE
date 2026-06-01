@@ -1,15 +1,4 @@
 <h1>{{ title() }}</h1> 
 <button (click)="showSpaghetti()">Ver Spaghetti Carbonara</button>
 <button (click)="showSalad()">Ver Caprese Salad</button>
-<h2>Receta: {{ recipe().name }}</h2>
-<img [src]="recipe().imgUrl" alt="{{ recipe().name }}" width="300">
-<p>Descripción: {{ recipe().description }}</p>
-<p>Servings: {{ servings() }}</p>
-<button (click)="increment()">+</button>
-<button (click)="decrement()">-</button>
-  <h3>Ingredientes:</h3>
-  <ul>
-    @for (ingredient of adjustedIngredients(); track ingredient.name) {
-      <li>{{ ingredient.name }}: {{ ingredient.quantity }} {{ ingredient.unit }}</li>
-    }
-  </ul>
+<app-recipe-card [recipe]="recipe()"></app-recipe-card>
