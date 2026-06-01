@@ -10,6 +10,7 @@ import { MOCK_RECIPES } from '../mock-recipes';
 })
 export class RecipeCard {
   readonly recipe = input.required<RecipeModel>();
+  readonly sectionTitle = input<string>('Receta');
   protected readonly servings = signal(1);
   protected readonly adjustedIngredients = computed(() => {
     const servings = this.servings();

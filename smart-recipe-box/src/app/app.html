@@ -1,4 +1,6 @@
-<h1>{{ title() }}</h1> 
-<button (click)="showSpaghetti()">Ver Spaghetti Carbonara</button>
-<button (click)="showSalad()">Ver Caprese Salad</button>
-<app-recipe-card [recipe]="recipe()"></app-recipe-card>
+<h1>{{ title() }}</h1>
+  <div class="recipe-buttons">
+    <button (click)="showSpaghetti()">Show Spaghetti Carbonara</button>
+    <button (click)="showSalad()">Show Caprese Salad</button>
+  </div>
+<app-recipe-card [recipe]="recipe()" sectionTitle="Mi Receta Favorita"></app-recipe-card>

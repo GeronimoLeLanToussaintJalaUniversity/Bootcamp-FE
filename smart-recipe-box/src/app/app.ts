@@ -1,4 +1,4 @@
-import { Component, signal  } from '@angular/core';
+import { Component, signal   } from '@angular/core';
 import { RecipeModel } from './models';
 import { MOCK_RECIPES } from './mock-recipes';
 import { RecipeCard } from './recipe-card/recipe-card';

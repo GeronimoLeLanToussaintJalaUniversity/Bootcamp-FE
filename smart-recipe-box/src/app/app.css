@@ -1,0 +1,13 @@
+ :host {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 24px;
+     font-family: sans-serif;
+ }
+
+ .recipe-buttons {
+     display: flex;
+     gap: 8px;
+     margin-bottom: 16px;
+ }
