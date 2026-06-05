@@ -1,4 +1,7 @@
 <div class="topbar">
+<p>{{ authService.currentUser().role | uppercase }}</p>
+<p>{{ authService.currentUser().role | lowercase }}</p>
+<p>{{ roles | titlecase }}</p>
   <button (click)="authService.toggleRole()">Rol: {{ authService.currentUser().role }}</button>
 </div>
 <div class="container">
@@ -9,4 +12,4 @@
     <div class="content-topbar"> </div>
     <div class="content-topbar2"> </div>
     <div class="grid">
-      <div class="card"></div>
+      <div class="card"></div>
