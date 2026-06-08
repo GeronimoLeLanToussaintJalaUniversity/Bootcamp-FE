@@ -1,6 +1,8 @@
 <h1>{{ title() }}</h1>
-  <div class="recipe-buttons">
-    <button (click)="showSpaghetti()">Show Spaghetti Carbonara</button>
-    <button (click)="showSalad()">Show Caprese Salad</button>
-  </div>
-<app-recipe-card [recipe]="recipe()" sectionTitle="Receta"></app-recipe-card>
+<input [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" placeholder="Buscar recetas">
+<p>Results for: {{ searchTerm() }}</p>
+<div class="recipe-buttons">
+  @for (recipe of filteredRecipes(); track recipe.id) {
+  <app-recipe-card [recipe]="recipe"></app-recipe-card>
+  }
+</div>

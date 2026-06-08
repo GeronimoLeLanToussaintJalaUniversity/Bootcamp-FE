@@ -1,7 +1,7 @@
 <div class="recipe-card">
     @if (isFavorite()) {
     <div class="favorite-badge">⭐ Favorita</div>
-    }<h2>{{ sectionTitle() }}: {{ recipe().name }}</h2>
+    }<h2>{{ recipe().name }}</h2>
     <img [src]="recipe().imgUrl" alt="{{ recipe().name }}" width="300">
     <p>Descripción: {{ recipe().description }}</p>
     <p>Servings: {{ servings() }}</p>
