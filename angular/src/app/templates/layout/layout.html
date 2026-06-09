@@ -1,8 +1,5 @@
 <div class="topbar">
-<p>{{ authService.currentUser().role | uppercase }}</p>
-<p>{{ authService.currentUser().role | lowercase }}</p>
-<p>{{ roles | titlecase }}</p>
-  <button (click)="authService.toggleRole()">Rol: {{ authService.currentUser().role }}</button>
+  <button (click)="authService.toggleRole()">Rol: {{ authService.currentUser().role | titlecase }}</button>
 </div>
 <div class="container">
   <div class="sidebar" [class.collapsed]="!sidebarVisible()">
@@ -12,4 +9,20 @@
     <div class="content-topbar"> </div>
     <div class="content-topbar2"> </div>
     <div class="grid">
+      <div class="card">
+        <h3>Example of uppercase, lowercase and titlecase </h3>
+        <p>Original: {{ exampleText }}</p>
+        <p>Uppercase: {{ exampleText | uppercase }}</p>
+        <p>Lowercase: {{ exampleText | lowercase }}</p>
+        <p>Titlecase: {{ exampleText | titlecase }}</p>
+      </div>
+      <div class="card">
+        <h3>Example of custom pipe</h3>
+        <p>Original: {{ exampleText }}</p>
+        <p>Custom: {{ exampleText | custom }}</p>
+      </div>
       <div class="card"></div>
+      <div class="card"></div>
+    </div>
+  </div>
+</div>

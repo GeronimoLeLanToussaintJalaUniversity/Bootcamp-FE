@@ -2,10 +2,10 @@ import { Component, signal, computed, HostListener, inject } from '@angular/core
 import { HasRoleDirective } from '../../directives/has-role.directive';
 import { AuthService } from '../../services/auth.service';
 import { UpperCasePipe, LowerCasePipe, TitleCasePipe } from '@angular/common';
-
+import { CustomPipe } from '../../pipes/custom.pipe';
 @Component({
   selector: 'app-layout',
-  imports: [HasRoleDirective, UpperCasePipe, LowerCasePipe, TitleCasePipe],
+  imports: [HasRoleDirective, UpperCasePipe, LowerCasePipe, TitleCasePipe, CustomPipe],
   templateUrl: './layout.html',
   styleUrl: './layout.css'
 })
@@ -13,7 +13,7 @@ export class Layout {
   authService = inject(AuthService);
   windowWidth = signal(window.innerWidth);
   manualOverride = signal<boolean | null>(null);
-  roles = "hola como vas";
+  exampleText = "Esto es un Ejemplo de TEXTO con ácéntós y caracteres especiales! _ü-";
 
   sidebarVisible = computed(() => {
     if (this.manualOverride() !== null) return this.manualOverride();
