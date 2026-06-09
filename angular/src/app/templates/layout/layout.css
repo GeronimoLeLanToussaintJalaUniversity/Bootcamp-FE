@@ -1,11 +1,8 @@
-:host {
-  display: block;
-}
 
 .container {
   background: #cfcfcf;
   display: flex;
-  min-height: 100vh;
+  flex: 1;
 }
 
 .sidebar {
@@ -39,14 +36,15 @@
   padding: 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem;
 }
 
 .card {
   background: #ffffad;
   aspect-ratio: 2/1;
+  overflow: hidden;
 }
 .sidebar.collapsed {
   flex: 0.4;
-  overflow: hidden;
 }

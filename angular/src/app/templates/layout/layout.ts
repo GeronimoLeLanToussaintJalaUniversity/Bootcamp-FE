@@ -13,7 +13,7 @@ export class Layout {
   authService = inject(AuthService);
   windowWidth = signal(window.innerWidth);
   manualOverride = signal<boolean | null>(null);
-  exampleText = "Esto es un Ejemplo de TEXTO con ácéntós y caracteres especiales! _ü-";
+  exampleText = "Ejemplo con ácéntós y caracteres especiales! _ü-";
 
   sidebarVisible = computed(() => {
     if (this.manualOverride() !== null) return this.manualOverride();
