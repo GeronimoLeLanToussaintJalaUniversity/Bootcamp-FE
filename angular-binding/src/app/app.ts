@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ModelExample } from './model-example';
+import { Father } from './model-example/father/father';
 
 @Component({
   selector: 'app-root',
-  imports: [ModelExample],
+  imports: [Father],
   templateUrl: './app.html'
 })
 export class App {}
