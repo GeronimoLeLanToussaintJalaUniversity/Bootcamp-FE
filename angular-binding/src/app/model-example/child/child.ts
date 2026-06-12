@@ -7,5 +7,5 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './child.html'
 })
 export class Child {
-  text = model('valor por defecto del hijo');
+  text = model('test');
 }

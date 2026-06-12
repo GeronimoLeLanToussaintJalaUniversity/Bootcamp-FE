@@ -1,1 +1,5 @@
-<app-child text />
+<app-child [(text)]="text" />
+
+@for (item of filteredItems(); track item) {
+<p>{{ item }}</p>
+}
