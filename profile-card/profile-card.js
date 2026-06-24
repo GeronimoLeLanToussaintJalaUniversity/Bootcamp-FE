@@ -23,8 +23,28 @@ class ProfileCard extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
   }
+  static get observedAttributes() {
+    return ['name', 'role', 'image'];
+  }
 
   connectedCallback() {
+    this.render();
+
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (this.isConnected) {
+      const root = this.shadowRoot;
+      const name = this.getAttribute('name') || 'Nombre Apellido';
+      root.querySelector('.name').textContent = name;
+    }
+  }
+
+  disconnectedCallback() {
+    console.log(`${this.getAttribute('name')} fue removido del DOM`);
+  }
+
+  render() {
     const root = this.shadowRoot;
     const name = this.getAttribute('name') || 'Nombre Apellido';
     const role = this.getAttribute('role') || 'Rol';
@@ -36,8 +56,8 @@ class ProfileCard extends HTMLElement {
     const img = root.querySelector('.avatar-img');
     img.src = image;
     img.alt = name;
-    img.hidden = false;
   }
+
 }
 
 customElements.define('profile-card', ProfileCard);

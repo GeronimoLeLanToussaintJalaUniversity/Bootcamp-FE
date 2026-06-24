@@ -7,16 +7,20 @@
     <title>profile-card</title>
     <link rel="stylesheet" href="styles.css">
     <script src="profile-card/profile-card.js"></script>
+    <script src="index.js"></script>
+
 </head>
 
 <body>
     <grid>
-        <profile-card class="card" name="Kageyama" role="Setter" image="assets/kageyama haikyu2.jpg"></profile-card>
-        <profile-card class="card" name="Hinata" role="Central" image="assets/hinata haikyu2.jpg"></profile-card>
-        <profile-card class="card" name="Tsukishima" role="Central"image="assets/tsukishima haikyu2.jpg"></profile-card>
+        <profile-card id="card-kageyama" class="card" name="El Rey" role="Setter"
+            image="assets/kageyama haikyu2.jpg"></profile-card> <profile-card class="card" name="Hinata" role="Central"
+            image="assets/hinata haikyu2.jpg"></profile-card>
+        <profile-card class="card" name="Tsukishima" role="Central"
+            image="assets/tsukishima haikyu2.jpg"></profile-card>
     </grid>
-
-
+    <button onclick="cambiarNombre()">Cambiar nombre</button>
+    <button onclick="eliminarCard()">Eliminar card</button>
 </body>
 
 </html>
