@@ -1,0 +1,21 @@
+.card-item {
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.card-item img {
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+.card-item h3 {
+  font-size: 1rem;
+  margin:  0.2rem;
+}
+
+.card-item p {
+  color: #6b7280;
+  margin: 0;
+}

@@ -1,0 +1,19 @@
+<h1>Duelist Codex</h1>
+
+@if (loading()) {
+  <p class="status">Cargando cartas...</p>
+}
+
+@if (error()) {
+  <p class="status error">{{ error() }}</p>
+}
+
+@if (!loading() && !error()) {
+  <div class="grid">
+    @for (card of cards(); track card.id) {
+      <app-card-item [card]="card" />
+    } @empty {
+      <p class="status">No se encontraron cartas.</p>
+    }
+  </div>
+}
