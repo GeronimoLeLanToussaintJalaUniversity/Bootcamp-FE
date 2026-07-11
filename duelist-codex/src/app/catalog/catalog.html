@@ -1,19 +1,26 @@
 <h1>Duelist Codex</h1>
 
+<input class="search" placeholder="Buscar carta por nombre..." autofocus [value]="searchTerm()"
+  (input)="onSearch($event)" />
+
 @if (loading()) {
-  <p class="status">Cargando cartas...</p>
+<p class="status">Cargando cartas...</p>
 }
 
 @if (error()) {
-  <p class="status error">{{ error() }}</p>
+<p class="status error">{{ error() }}</p>
 }
 
 @if (!loading() && !error()) {
-  <div class="grid">
-    @for (card of cards(); track card.id) {
-      <app-card-item [card]="card" />
-    } @empty {
-      <p class="status">No se encontraron cartas.</p>
-    }
-  </div>
+<div class="grid">
+  @for (card of filteredCards(); track card.id) {
+  <app-card-item [card]="card" />
+  } @empty {
+  @if (searchTerm()) {
+  <p class="status">No se encontraron cartas que coincidan con "{{ searchTerm() }}".</p>
+  } @else {
+  <p class="status">No se encontraron cartas.</p>
+  }
+  }
+</div>
 }

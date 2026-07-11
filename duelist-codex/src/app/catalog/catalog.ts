@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CardService } from '../services/card';
 import { Card } from '../models/card.model';
 import { CardItem } from './card-item/card-item';
@@ -15,9 +15,23 @@ export class Catalog implements OnInit {
   cards = signal<Card[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  searchTerm = signal('');
+
+  filteredCards = computed(() => {
+    const term = this.searchTerm().trim().toLowerCase();
+    if (!term) {
+      return this.cards();
+    }
+    return this.cards().filter((card) => card.name.toLowerCase().includes(term));
+  });
 
   ngOnInit(): void {
     this.loadCards();
+  }
+
+  onSearch(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchTerm.set(value);
   }
 
   private async loadCards(query?: string): Promise<void> {
