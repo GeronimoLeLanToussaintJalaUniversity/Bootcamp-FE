@@ -8,10 +8,19 @@ export interface Card {
   def?: number;
   level?: number;
   attribute?: string;
+  prices?: CardPrices;
 }
 
 export interface RawCardImage {
   image_url: string;
+}
+
+export interface CardPrices {
+  cardmarket_price: string;
+  tcgplayer_price: string;
+  ebay_price: string;
+  amazon_price: string;
+  coolstuffinc_price: string;
 }
 
 export interface RawCard {
@@ -24,6 +33,7 @@ export interface RawCard {
   def?: number;
   level?: number;
   attribute?: string;
+  card_prices?: CardPrices[];
 }
 
 export interface CardApiResponse {

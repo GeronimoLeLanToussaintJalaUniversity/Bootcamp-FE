@@ -32,6 +32,7 @@ export class CardService {
       def: raw.def,
       level: raw.level,
       attribute: raw.attribute,
+      prices: raw.card_prices?.[0],
     };
   }
 }

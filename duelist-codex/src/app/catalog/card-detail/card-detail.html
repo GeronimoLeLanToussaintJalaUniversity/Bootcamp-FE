@@ -9,17 +9,39 @@
         <h2>{{ card().name }}</h2>
         <p class="type">{{ card().type }}</p>
 
-        @if (card().attribute) {
-          <p><strong>Atributo:</strong> {{ card().attribute }}</p>
-        }
-        @if (card().level) {
-          <p><strong>Nivel:</strong> {{ card().level }}</p>
-        }
-        @if (card().atk !== undefined) {
-          <p><strong>ATK:</strong> {{ card().atk }} / <strong>DEF:</strong> {{ card().def }}</p>
-        }
+        <app-tabs [labels]="tabLabels" [(activeIndex)]="activeTab" />
 
-        <p class="desc">{{ card().desc }}</p>
+        @switch (activeTab()) {
+          @case (0) {
+            <p class="desc">{{ card().desc }}</p>
+          }
+          @case (1) {
+            @if (card().attribute || card().level || card().atk !== undefined) {
+              @if (card().attribute) {
+                <p><strong>Atributo:</strong> {{ card().attribute }}</p>
+              }
+              @if (card().level) {
+                <p><strong>Nivel:</strong> {{ card().level }}</p>
+              }
+              @if (card().atk !== undefined) {
+                <p><strong>ATK:</strong> {{ card().atk }} / <strong>DEF:</strong> {{ card().def }}</p>
+              }
+            } @else {
+              <p class="empty">Esta carta no tiene estadísticas (no es un monstruo).</p>
+            }
+          }
+          @case (2) {
+            @if (card().prices; as prices) {
+              <p><strong>Cardmarket:</strong> €{{ prices.cardmarket_price }}</p>
+              <p><strong>TCGplayer:</strong> ${{ prices.tcgplayer_price }}</p>
+              <p><strong>eBay:</strong> ${{ prices.ebay_price }}</p>
+              <p><strong>Amazon:</strong> ${{ prices.amazon_price }}</p>
+              <p><strong>CoolStuffInc:</strong> ${{ prices.coolstuffinc_price }}</p>
+            } @else {
+              <p class="empty">Sin datos de precio disponibles.</p>
+            }
+          }
+        }
       </div>
     </div>
   </div>

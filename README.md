@@ -50,3 +50,19 @@ Al hacer click en una carta se abre un modal con más información: imagen a la 
 - **Modal superpuesto en vez de una ruta nueva**: no se usó el Router. Al no navegar a otra pantalla, el estado de búsqueda y el catálogo cargado nunca se pierden — abrir y cerrar el detalle no reinicia nada.
 - **Imagen a la izquierda, info a la derecha**: prioriza que la carta se vea grande y clara, con el texto acompañándola sin tener que scrollear para llegar a la imagen.
 - **Campos opcionales según tipo de carta**: en vez de asumir que toda carta tiene ATK/DEF/Nivel/Atributo, se muestran solo si vienen en la respuesta de la API, evitando mostrar campos vacíos o `undefined` en cartas de Magia/Trampa.
+
+## HU-04 — Organizar el detalle en secciones
+
+Dentro del modal de detalle, la información se organiza en 3 pestañas: Efecto, Estadísticas y Precio, en vez de un solo bloque de texto.
+
+### Cómo funciona
+
+- `Tabs` (`shared/tabs/`) es un componente genérico que no sabe nada de cartas: recibe `labels` (un array de strings) y expone `activeIndex` como binding de dos vías (`model()`). Solo dibuja los botones de las pestañas y marca cuál está activa.
+- `CardDetail` lo usa con `[(activeIndex)]="activeTab"` y un `@switch (activeTab())` que muestra el contenido correspondiente a cada pestaña (Efecto → `desc`, Estadísticas → atributo/nivel/ATK-DEF, Precio → `prices`).
+- El modelo `Card` se extendió con `prices?` (tomado de `card_prices`, otro campo real de la API). Si una carta no tiene estadísticas (Magia/Trampa) o no tiene precios cargados, la pestaña muestra un mensaje en vez de quedar vacía.
+
+### Decisiones
+
+- **Pestañas en vez de acordeón**: solo se ve una sección a la vez, lo cual mantiene el modal corto y evita que crezca mucho de alto con las tres secciones abiertas juntas.
+- **`Tabs` reutilizable**: no depende de `Card` ni de nada de Yu-Gi-Oh — solo recibe etiquetas y un índice activo. Cualquier otro componente de la app podría usarlo para organizar contenido en pestañas.
+- **`model()` para el índice activo**: es el mecanismo de two-way binding de Angular con signals; `CardDetail` mantiene el estado (`activeTab`) y `Tabs` solo lo lee/actualiza, sin duplicar esa información en dos lugares.
