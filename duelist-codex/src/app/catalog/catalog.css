@@ -30,3 +30,9 @@
 .status.error {
   color: #dc2626;
 }
+
+.card-placeholder {
+  min-height: 10rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+}

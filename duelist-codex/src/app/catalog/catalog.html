@@ -14,7 +14,11 @@
 @if (!loading() && !error()) {
 <div class="grid">
   @for (card of filteredCards(); track card.id) {
+  @defer (on viewport) {
   <app-card-item [card]="card" (select)="selectedCard.set($event)" />
+  } @placeholder {
+  <div class="card-placeholder"></div>
+  }
   } @empty {
   @if (searchTerm()) {
   <p class="status">No se encontraron cartas que coincidan con "{{ searchTerm() }}".</p>
