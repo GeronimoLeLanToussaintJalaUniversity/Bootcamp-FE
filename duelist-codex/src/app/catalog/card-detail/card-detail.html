@@ -1,0 +1,26 @@
+<div class="overlay" (click)="close.emit()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="close.emit()" aria-label="Cerrar">✕</button>
+
+    <div class="layout">
+      <img [src]="card().imageUrl" [alt]="card().name" />
+
+      <div class="info">
+        <h2>{{ card().name }}</h2>
+        <p class="type">{{ card().type }}</p>
+
+        @if (card().attribute) {
+          <p><strong>Atributo:</strong> {{ card().attribute }}</p>
+        }
+        @if (card().level) {
+          <p><strong>Nivel:</strong> {{ card().level }}</p>
+        }
+        @if (card().atk !== undefined) {
+          <p><strong>ATK:</strong> {{ card().atk }} / <strong>DEF:</strong> {{ card().def }}</p>
+        }
+
+        <p class="desc">{{ card().desc }}</p>
+      </div>
+    </div>
+  </div>
+</div>

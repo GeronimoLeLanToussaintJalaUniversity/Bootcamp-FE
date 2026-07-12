@@ -2,11 +2,11 @@ import { Component, input, output } from '@angular/core';
 import { Card } from '../../models/card.model';
 
 @Component({
-  selector: 'app-card-item',
-  templateUrl: './card-item.html',
-  styleUrl: './card-item.css',
+  selector: 'app-card-detail',
+  templateUrl: './card-detail.html',
+  styleUrl: './card-detail.css',
 })
-export class CardItem {
+export class CardDetail {
   card = input.required<Card>();
-  select = output<Card>();
+  close = output<void>();
 }

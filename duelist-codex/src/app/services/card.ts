@@ -27,6 +27,11 @@ export class CardService {
       name: raw.name,
       type: raw.type,
       imageUrl: raw.card_images[0]?.image_url ?? '',
+      desc: raw.desc,
+      atk: raw.atk,
+      def: raw.def,
+      level: raw.level,
+      attribute: raw.attribute,
     };
   }
 }

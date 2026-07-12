@@ -14,7 +14,7 @@
 @if (!loading() && !error()) {
 <div class="grid">
   @for (card of filteredCards(); track card.id) {
-  <app-card-item [card]="card" />
+  <app-card-item [card]="card" (select)="selectedCard.set($event)" />
   } @empty {
   @if (searchTerm()) {
   <p class="status">No se encontraron cartas que coincidan con "{{ searchTerm() }}".</p>
@@ -23,4 +23,8 @@
   }
   }
 </div>
+}
+
+@if (selectedCard(); as card) {
+<app-card-detail [card]="card" (close)="selectedCard.set(null)" />
 }

@@ -3,6 +3,7 @@
   border-radius: 1rem;
   padding: 1rem;
   text-align: center;
+  cursor: pointer;
 }
 
 .card-item img {
