@@ -66,3 +66,17 @@ Dentro del modal de detalle, la información se organiza en 3 pestañas: Efecto,
 - **Pestañas en vez de acordeón**: solo se ve una sección a la vez, lo cual mantiene el modal corto y evita que crezca mucho de alto con las tres secciones abiertas juntas.
 - **`Tabs` reutilizable**: no depende de `Card` ni de nada de Yu-Gi-Oh — solo recibe etiquetas y un índice activo. Cualquier otro componente de la app podría usarlo para organizar contenido en pestañas.
 - **`model()` para el índice activo**: es el mecanismo de two-way binding de Angular con signals; `CardDetail` mantiene el estado (`activeTab`) y `Tabs` solo lo lee/actualiza, sin duplicar esa información en dos lugares.
+
+## HU-05 — Mantener el estado de búsqueda de forma consistente
+
+No hubo que agregar código nuevo para esta historia: ya quedó resuelta por cómo se armó todo desde HU-01.
+
+### Cómo funciona
+
+- Todo el estado relevante (`cards`, `loading`, `error`, `searchTerm`, `selectedCard`) vive como signals en un solo lugar: `Catalog`. Ningún otro componente (`CardItem`, `CardDetail`, `Tabs`) tiene estado propio — solo reciben datos por `input()` y avisan cosas por `output()`.
+- `Catalog` nunca se destruye mientras estás en la pantalla, así que sus signals se mantienen vivos todo el tiempo. `CardDetail` sí se crea y destruye (entra y sale detrás de un `@if`), pero no es dueño de ningún estado de búsqueda, así que no hay nada que perder al abrirlo o cerrarlo.
+
+### Decisiones
+
+- **Una sola herramienta (signals) para todo el estado de búsqueda**, no una mezcla de signals en un lado y variables sueltas en otro.
+- **El estado vive en el componente que persiste**, no en los que se crean y destruyen (`CardDetail`): así abrir y cerrar el modal nunca resetea la búsqueda ni el catálogo cargado.
