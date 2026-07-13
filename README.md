@@ -80,3 +80,12 @@ No hubo que agregar código nuevo para esta historia: ya quedó resuelta por có
 
 - **Una sola herramienta (signals) para todo el estado de búsqueda**, no una mezcla de signals en un lado y variables sueltas en otro.
 - **El estado vive en el componente que persiste**, no en los que se crean y destruyen (`CardDetail`): así abrir y cerrar el modal nunca resetea la búsqueda ni el catálogo cargado.
+
+## Posibles mejoras
+
+- Sacar el buscador a su propio componente en vez de tenerlo inline en `Catalog`.
+- Reorganizar mejor las carpetas del proyecto.
+- No traer todas las cartas de una al inicio: buscar por API con paginación en vez de cargar el catálogo completo.
+- Debounce en la búsqueda si en algún momento se pasa a buscar contra la API, para no pegarle en cada tecla.
+- Manejar el caso de una carta sin imagen (`card_images` vacío) con un placeholder en vez de dejar el `<img>` roto.
+- Tests de componentes: hoy solo existe `card.spec.ts` del service, faltan `Catalog`, `CardItem`, `CardDetail` y `Tabs`.
