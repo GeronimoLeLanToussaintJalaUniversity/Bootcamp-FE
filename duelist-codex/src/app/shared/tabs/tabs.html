@@ -1,0 +1,12 @@
+<div class="tabs" role="tablist">
+  @for (label of labels(); track label; let i = $index) {
+    <button
+      type="button"
+      class="tab"
+      [class.active]="activeIndex() === i"
+      (click)="activeIndex.set(i)"
+    >
+      {{ label }}
+    </button>
+  }
+</div>
