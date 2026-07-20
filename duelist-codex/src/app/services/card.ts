@@ -3,6 +3,15 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Card, CardApiResponse, RawCard } from '../models/card.model';
 
+const NO_IMAGE =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="140">' +
+      '<rect width="100%" height="100%" fill="#374151"/>' +
+      '<text x="50%" y="50%" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="sans-serif">Sin imagen</text>' +
+      '</svg>',
+  );
+
 @Service()
 export class CardService {
   private http = inject(HttpClient);
@@ -26,7 +35,7 @@ export class CardService {
       id: raw.id,
       name: raw.name,
       type: raw.type,
-      imageUrl: raw.card_images[0]?.image_url ?? '',
+      imageUrl: raw.card_images[0]?.image_url ?? NO_IMAGE,
       desc: raw.desc,
       atk: raw.atk,
       def: raw.def,

@@ -1,12 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CardService } from '../services/card';
-import { Card } from '../models/card.model';
-import { CardItem } from './card-item/card-item';
-import { CardDetail } from './card-detail/card-detail';
+import { CardService } from '../../services/card';
+import { Card } from '../../models/card.model';
+import { CardItem } from '../card-item/card-item';
+import { CardDetail } from '../card-detail/card-detail';
+import { SearchBar } from '../search-bar/search-bar';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CardItem, CardDetail],
+  imports: [CardItem, CardDetail, SearchBar],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
@@ -29,11 +30,6 @@ export class Catalog implements OnInit {
 
   ngOnInit(): void {
     this.loadCards();
-  }
-
-  onSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchTerm.set(value);
   }
 
   private async loadCards(query?: string): Promise<void> {

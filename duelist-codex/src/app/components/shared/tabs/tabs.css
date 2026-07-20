@@ -1,7 +1,7 @@
 .tabs {
   display: flex;
   gap: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #374151;
   margin-bottom: 0.75rem;
 }
 
@@ -10,13 +10,13 @@
   background: transparent;
   padding: 0.5rem 0.7rem;
   cursor: pointer;
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 1rem;
   border-bottom: 2px solid transparent;
 }
 
 .tab.active {
-  color: #111827;
-  border-bottom-color: #111827;
+  color: #f9fafb;
+  border-bottom-color: #f9fafb;
   font-weight: 600;
 }

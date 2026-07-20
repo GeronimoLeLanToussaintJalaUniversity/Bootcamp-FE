@@ -6,16 +6,6 @@
   font-family: sans-serif;
 }
 
-.search {
-  display: block;
-  width: 100%;
-  margin: 1rem 0;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
@@ -24,7 +14,7 @@
 
 .status {
   text-align: center;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .status.error {
@@ -33,6 +23,6 @@
 
 .card-placeholder {
   min-height: 10rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #374151;
   border-radius: 1rem;
 }

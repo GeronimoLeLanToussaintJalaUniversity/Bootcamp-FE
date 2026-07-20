@@ -1,0 +1,11 @@
+.search {
+  display: block;
+  width: 100%;
+  margin: 1rem 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #1f2937;
+  color: #e5e7eb;
+}

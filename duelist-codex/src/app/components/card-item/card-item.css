@@ -1,5 +1,5 @@
 .card-item {
-  border: 1px solid #d1d5db;
+  border: 1px solid #374151;
   border-radius: 1rem;
   padding: 1rem;
   text-align: center;
@@ -17,6 +17,6 @@
 }
 
 .card-item p {
-  color: #6b7280;
+  color: #9ca3af;
   margin: 0;
 }
