@@ -1,7 +1,6 @@
 <h1>Duelist Codex</h1>
 
-<input class="search" placeholder="Buscar carta por nombre..." autofocus [value]="searchTerm()"
-  (input)="onSearch($event)" />
+<app-search-bar [(term)]="searchTerm" />
 
 @if (loading()) {
 <p class="status">Cargando cartas...</p>

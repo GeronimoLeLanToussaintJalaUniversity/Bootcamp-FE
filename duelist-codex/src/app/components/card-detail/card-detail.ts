@@ -1,6 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { Card } from '../../models/card.model';
-import { Tabs } from '../../shared/tabs/tabs';
+import { Tabs } from '../shared/tabs/tabs';
 
 @Component({
   selector: 'app-card-detail',

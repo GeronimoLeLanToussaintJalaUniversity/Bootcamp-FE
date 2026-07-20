@@ -10,7 +10,7 @@
 
 .modal {
   position: relative;
-  background: white;
+  background: #1f2937;
   border-radius: 0.75rem;
   padding: 1.5rem;
   max-width: 560px;
@@ -39,7 +39,7 @@
 }
 
 .type {
-  color: #6b7280;
+  color: #9ca3af;
   margin-top: 0;
 }
 
@@ -58,11 +58,11 @@
 .desc {
   text-align: left;
   white-space: pre-line;
-  color: #374151;
+  color: #d1d5db;
 }
 
 .empty {
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .close-btn {
@@ -73,5 +73,5 @@
   background: transparent;
   font-size: 1.1rem;
   cursor: pointer;
-  color: #6b7280;
+  color: #9ca3af;
 }
