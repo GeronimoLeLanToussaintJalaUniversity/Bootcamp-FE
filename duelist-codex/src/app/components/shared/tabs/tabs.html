@@ -1,12 +1,12 @@
 <div class="tabs" role="tablist">
-  @for (label of labels(); track label; let i = $index) {
-    <button
-      type="button"
+  @for (tab of tabs(); track tab.label) {
+    <a
       class="tab"
-      [class.active]="activeIndex() === i"
-      (click)="activeIndex.set(i)"
+      [routerLink]="tab.link"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
     >
-      {{ label }}
-    </button>
+      {{ tab.label }}
+    </a>
   }
 </div>

@@ -55,16 +55,6 @@
   }
 }
 
-.desc {
-  text-align: left;
-  white-space: pre-line;
-  color: #d1d5db;
-}
-
-.empty {
-  color: #9ca3af;
-}
-
 .status {
   color: #9ca3af;
 }

@@ -1,0 +1,11 @@
+@if (card(); as card) {
+  @if (card.prices; as prices) {
+    <p><strong>Cardmarket:</strong> €{{ prices.cardmarket_price }}</p>
+    <p><strong>TCGplayer:</strong> ${{ prices.tcgplayer_price }}</p>
+    <p><strong>eBay:</strong> ${{ prices.ebay_price }}</p>
+    <p><strong>Amazon:</strong> ${{ prices.amazon_price }}</p>
+    <p><strong>CoolStuffInc:</strong> ${{ prices.coolstuffinc_price }}</p>
+  } @else {
+    <p class="empty">Sin datos de precio disponibles.</p>
+  }
+}

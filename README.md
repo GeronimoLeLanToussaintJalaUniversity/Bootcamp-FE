@@ -115,3 +115,24 @@ El catálogo y el detalle de cada carta tienen su propia URL. `/` muestra el cat
 
 - **`CardDetail` como ruta hija de `Catalog`, no hermana**: así `Catalog` nunca se destruye al entrar o salir del detalle — se mantiene el mismo efecto de modal sobre el catálogo, y la búsqueda/estado de HU-05 del Challenge 1 siguen intactos, ahora con URL real de regalo.
 - **`CardDetail` busca su propia carta por `id`** en vez de recibirla de `Catalog`: si se entra directo por `/card/123` (sin pasar por el catálogo primero), `Catalog` recién está arrancando su propio fetch y no se puede asumir que esa carta ya esté cargada.
+
+### HU-02 — Explorar secciones del detalle como sub-vistas
+
+Efecto, Estadísticas y Precio dejaron de ser un `@switch` local y ahora son 3 rutas hijas de `card/:id` (`effect`, `stats`, `price`), cada una con su propia URL. Entrar directo a `/card/123/price` funciona igual que entrar a `/card/123` y clickear la pestaña.
+
+#### Cómo funciona
+
+- `app.routes.ts`: `card/:id` ahora tiene `children`, con una ruta vacía que redirige a `effect` (`{ path: '', redirectTo: 'effect', pathMatch: 'full' }`) para que `/card/123` siempre caiga en una sección concreta.
+- `CardDetail` agregó su propio `<router-outlet>` (importando `RouterOutlet`) donde antes estaba el `@switch (activeTab())`. Las 3 secciones viven en `components/card-detail/effect|stats|price/`, como subcarpetas de `card-detail` — reflejando la jerarquía de rutas, tal cual se vio en clase (`Clase 08`). Cada una es un componente propio (`CardEffect`, `CardStats`, `CardPrice`) con el HTML que antes vivía en cada `@case` del switch.
+- `Tabs` dejó de manejar un `activeIndex` local (`model<number>`) y ahora recibe `tabs: TabLink[]` (`{ label, link }[]`), renderizando cada uno como `<a [routerLink]="tab.link" routerLinkActive="active">`. Sigue sin saber nada de `Card`, `effect`/`stats`/`price` ni de esta app en particular — solo sabe renderizar una lista de links con su estado activo, igual que antes solo sabía renderizar labels con un índice activo.
+- **Compartir la carta con las 3 secciones**: como ahora son 3 componentes propios detrás de un `<router-outlet>` (no se les puede pasar un `@Input()` — el router-outlet no permite bindear inputs custom a un componente que decide en runtime), `CardDetailStore` (`services/card-detail-store.ts`) es el dueño único de `card`/`error` y de cómo se cargan (`load(id)`, con `CardService.getCard(id)`). Se provee a nivel de la ruta `card/:id` (`providers: [CardDetailStore]` en `app.routes.ts`), no del componente. Como `CardEffect`/`CardStats`/`CardPrice` son descendientes de esa ruta, la inyección jerárquica les da la misma instancia — leen `store.card`/`store.error` directo, sin volver a pedir nada a la API.
+- `CardDetail` ya no dispara el fetch en `ngOnInit`: la ruta `card/:id` tiene un `resolve: { card: cardResolver }` (`resolvers/card.resolver.ts`) que llama `store.load(id)` y espera a que termine antes de activar la ruta. `CardDetail` quedó sin `ActivatedRoute`, sin `toSignal`/`computed` ni `ngOnInit` — solo inyecta `CardDetailStore` y expone `card`/`error`.
+
+#### Decisiones
+
+- **`Tabs` se mantiene domain-agnostic a propósito**: en vez de que `Tabs` conozca las 3 secciones de una carta, `CardDetail` es quien arma el array `TabLink[]` y se lo pasa. `Tabs` solo entiende "lista de (label, link)", por lo que serviría igual para cualquier otro conjunto de sub-vistas en rutas de esta o de otra app.
+- **Rutas relativas (`'effect'`, no `'/effect'`)**: como estas rutas son hijas de `card/:id`, `routerLink` las resuelve relativas a esa ruta activa. Si se navega desde `CardItem` a otra carta, no hace falta reconstruir el path completo.
+- **Sin `effect()` para "sincronizar" estado**: una primera versión tenía a `CardDetail` con su propio signal `card`, copiándolo al store con un `effect()`. Es el anti-patrón que se remarcó en clase (`effect()` como último recurso, no para propagar estado). Se corrigió: `CardDetailStore` es el único dueño del signal, `CardDetail` expone una referencia directa (`card = this.store.card`), no una copia.
+- Se agregó `{ path: '**', redirectTo: '' }` como última entrada del array de rutas (nivel raíz, hermana de la ruta `''` de `Catalog`) — cualquier URL que no matchee ninguna ruta redirige al catálogo, en vez de romper o quedar en blanco.
+- **El resolver no devuelve la carta por `route.data`, llama al store directo**: en vez de que `cardResolver` retorne el `Card` y `CardDetail` lo lea de `route.data`, el resolver llama `store.load(id)` y no devuelve nada. Evita tener el mismo dato en dos lugares.
+- **Se sacó `loading` del store y de `card-detail.html`**: con el resolver bloqueando la navegación hasta tener los datos, `CardDetail` nunca llega a renderizarse con `loading() === true` — era código muerto. Mientras se resuelve, lo que se ve es la pantalla anterior (el catálogo, que no se destruye) sin ningún indicador.
