@@ -65,6 +65,14 @@
   color: #9ca3af;
 }
 
+.status {
+  color: #9ca3af;
+}
+
+.status.error {
+  color: #dc2626;
+}
+
 .close-btn {
   position: absolute;
   top: 0.5rem;

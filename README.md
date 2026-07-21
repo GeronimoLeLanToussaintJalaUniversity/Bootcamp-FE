@@ -99,3 +99,19 @@ Cambios hechos entre el Challenge 1 y el Challenge 2
 - **Modo oscuro**: fondo oscuro global (`styles.css`) y colores ajustados en `catalog`, `card-item`, `card-detail`, `tabs` y `search-bar` para mantener contraste. Sin toggle, siempre oscuro.
 
 ## Challenge 2 — Duelist Codex: Navegación y Datos Resilientes
+
+### HU-01 — Navegar la app por URL
+
+El catálogo y el detalle de cada carta tienen su propia URL. `/` muestra el catálogo, `/card/:id` el detalle de esa carta puntual — se puede entrar directo por URL, refrescar estando en el detalle, o usar atrás/adelante del navegador, y funciona en todos los casos.
+
+#### Cómo funciona
+
+- `app.routes.ts` define `Catalog` en la ruta `''`, con `CardDetail` como ruta hija en `card/:id`. `Catalog` tiene su propio `<router-outlet>` en el template, en el mismo lugar donde antes estaba el `@if (selectedCard(); as card) { ... }` del modal.
+- `CardItem` ya no emite un evento al hacer click: usa `[routerLink]="['/card', card().id]"` para navegar directo.
+- `CardDetail` ya no recibe la carta por `input()` desde `Catalog`. Lee el `id` de la URL con `ActivatedRoute` + `toSignal(route.paramMap)` (convierte el observable en signal, sin suscribirse a mano) y un `computed()` que lo extrae del `paramMap`. Con ese `id` pide su propia carta con el nuevo método `CardService.getCard(id)`, que filtra la API por `id` en vez de `fname`. Tiene sus propios signals `card`, `loading` y `error`, con el mismo patrón `ngOnInit` + try/catch/finally que ya usaba `Catalog`.
+- Cerrar el modal (✕ o click afuera) pasó de emitir `close` a navegar con `[routerLink]="['/']"`.
+
+#### Decisiones
+
+- **`CardDetail` como ruta hija de `Catalog`, no hermana**: así `Catalog` nunca se destruye al entrar o salir del detalle — se mantiene el mismo efecto de modal sobre el catálogo, y la búsqueda/estado de HU-05 del Challenge 1 siguen intactos, ahora con URL real de regalo.
+- **`CardDetail` busca su propia carta por `id`** en vez de recibirla de `Catalog`: si se entra directo por `/card/123` (sin pasar por el catálogo primero), `Catalog` recién está arrancando su propio fetch y no se puede asumir que esa carta ya esté cargada.

@@ -1,13 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { CardService } from '../../services/card';
 import { Card } from '../../models/card.model';
 import { CardItem } from '../card-item/card-item';
-import { CardDetail } from '../card-detail/card-detail';
 import { SearchBar } from '../search-bar/search-bar';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CardItem, CardDetail, SearchBar],
+  imports: [CardItem, SearchBar, RouterOutlet],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
@@ -18,7 +18,6 @@ export class Catalog implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   searchTerm = signal('');
-  selectedCard = signal<Card | null>(null);
 
   filteredCards = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();

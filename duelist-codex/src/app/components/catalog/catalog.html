@@ -14,7 +14,7 @@
 <div class="grid">
   @for (card of filteredCards(); track card.id) {
   @defer (on viewport) {
-  <app-card-item [card]="card" (select)="selectedCard.set($event)" />
+  <app-card-item [card]="card" />
   } @placeholder {
   <div class="card-placeholder"></div>
   }
@@ -28,6 +28,4 @@
 </div>
 }
 
-@if (selectedCard(); as card) {
-<app-card-detail [card]="card" (close)="selectedCard.set(null)" />
-}
+<router-outlet />

@@ -1,4 +1,4 @@
-<article class="card-item" (click)="select.emit(card())">
+<article class="card-item" [routerLink]="['/card', card().id]">
   <img [src]="card().imageUrl" [alt]="card().name" />
   <h3>{{ card().name }}</h3>
   <p>{{ card().type }}</p>
