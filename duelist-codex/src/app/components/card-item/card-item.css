@@ -7,6 +7,11 @@
   cursor: pointer;
 }
 
+.card-item.highlighted-card {
+  border-color: #f97316;
+  box-shadow: 0 0 0 2px #f97316;
+}
+
 .favorite-btn {
   position: absolute;
   top: 0.5rem;

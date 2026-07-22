@@ -2,10 +2,11 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Card } from '../../models/card.model';
 import { FavoritesStore } from '../../services/favorites';
+import { HighlightCardDirective } from '../../directives/highlight-card.directive';
 
 @Component({
   selector: 'app-card-item',
-  imports: [RouterLink],
+  imports: [RouterLink, HighlightCardDirective],
   templateUrl: './card-item.html',
   styleUrl: './card-item.css',
 })

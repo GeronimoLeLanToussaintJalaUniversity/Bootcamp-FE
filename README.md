@@ -123,7 +123,7 @@ Efecto, Estadísticas y Precio dejaron de ser un `@switch` local y ahora son 3 r
 #### Cómo funciona
 
 - `app.routes.ts`: `card/:id` ahora tiene `children`, con una ruta vacía que redirige a `effect` (`{ path: '', redirectTo: 'effect', pathMatch: 'full' }`) para que `/card/123` siempre caiga en una sección concreta.
-- `CardDetail` agregó su propio `<router-outlet>` (importando `RouterOutlet`) donde antes estaba el `@switch (activeTab())`. Las 3 secciones viven en `components/card-detail/effect|stats|price/`, como subcarpetas de `card-detail` — reflejando la jerarquía de rutas, tal cual se vio en clase (`Clase 08`). Cada una es un componente propio (`CardEffect`, `CardStats`, `CardPrice`) con el HTML que antes vivía en cada `@case` del switch.
+- `CardDetail` agregó su propio `<router-outlet>` (importando `RouterOutlet`) donde antes estaba el `@switch (activeTab())`. Las 3 secciones viven en `components/card-detail/effect|stats|price/`, como subcarpetas de `card-detail` — reflejando la jerarquía de rutas. Cada una es un componente propio (`CardEffect`, `CardStats`, `CardPrice`) con el HTML que antes vivía en cada `@case` del switch.
 - `Tabs` dejó de manejar un `activeIndex` local (`model<number>`) y ahora recibe `tabs: TabLink[]` (`{ label, link }[]`), renderizando cada uno como `<a [routerLink]="tab.link" routerLinkActive="active">`. Sigue sin saber nada de `Card`, `effect`/`stats`/`price` ni de esta app en particular — solo sabe renderizar una lista de links con su estado activo, igual que antes solo sabía renderizar labels con un índice activo.
 - **Compartir la carta con las 3 secciones**: como ahora son 3 componentes propios detrás de un `<router-outlet>` (no se les puede pasar un `@Input()` — el router-outlet no permite bindear inputs custom a un componente que decide en runtime), `CardDetailStore` (`services/card-detail-store.ts`) es el dueño único de `card`/`error` y de cómo se cargan (`load(id)`, con `CardService.getCard(id)`). Se provee a nivel de la ruta `card/:id` (`providers: [CardDetailStore]` en `app.routes.ts`), no del componente. Como `CardEffect`/`CardStats`/`CardPrice` son descendientes de esa ruta, la inyección jerárquica les da la misma instancia — leen `store.card`/`store.error` directo, sin volver a pedir nada a la API.
 - `CardDetail` ya no dispara el fetch en `ngOnInit`: la ruta `card/:id` tiene un `resolve: { card: cardResolver }` (`resolvers/card.resolver.ts`) que llama `store.load(id)` y espera a que termine antes de activar la ruta. `CardDetail` quedó sin `ActivatedRoute`, sin `toSignal`/`computed` ni `ngOnInit` — solo inyecta `CardDetailStore` y expone `card`/`error`.
@@ -168,3 +168,18 @@ Al navegar al detalle de una carta, los datos ya están listos antes de que se t
 #### Decisiones
 
 - **El resolver es lo que garantiza la consistencia catálogo-vs-URL-directa**, no algo que haya que armar aparte: al estar en la configuración de la ruta, Angular lo corre en cualquier forma de llegar a `card/:id`. Esto ya estaba resuelto desde HU-02 (cuando se agregó el resolver junto con las secciones hijas); esta historia lo que sumó fue el caso de "carta no encontrada" que faltaba cubrir.
+
+### HU-05 — Identificar cartas destacadas de un vistazo
+
+Las cartas con ATK mayor a 1200 se resaltan visualmente (borde + resplandor naranja) en cualquier lugar donde se listen cartas — catálogo y colección — sin que cada componente tenga que implementar esa lógica por su cuenta.
+
+#### Cómo funciona
+
+- `HighlightCardDirective` (`directives/highlight-card.directive.ts`): una directiva de atributo, `[appHighlightCard]`, que recibe la carta (`input.required<Card>({ alias: 'appHighlightCard' })`) y calcula `isHighlighted = computed(() => (card().atk ?? 0) > 1200)`. Vía `host: { '[class.highlighted-card]': 'isHighlighted()' }` le agrega o saca la clase `highlighted-card` al elemento donde se aplica.
+- Se aplica una sola vez, en `card-item.html` (`<article [appHighlightCard]="card()">`), no en cada lugar que renderiza cartas. Como `CardItem` ya se reutiliza en `Catalog` y en `Collection`, ambos quedan resaltando cartas destacadas gratis, sin tocarlos.
+- El estilo (`.highlighted-card`) vive en `card-item.css`, junto a la clase `.card-item` que ya estaba — la directiva solo pone/saca la clase, el cómo se ve queda en el componente dueño del elemento.
+
+#### Decisiones
+
+- **`computed()` + host binding, no `effect()` + `Renderer2`**: Alcanza con un `computed()` atado a un binding de clase en el host es menos código, no toca el DOM a mano.
+- **Es una directiva de atributo, no estructural**: no crea ni destruye elementos (como si eran `qzRow` o el `*appCustomIf` de clase), solo le agrega/saca una clase CSS a un elemento que ya existe.
