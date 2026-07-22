@@ -136,3 +136,21 @@ Efecto, Estadísticas y Precio dejaron de ser un `@switch` local y ahora son 3 r
 - Se agregó `{ path: '**', redirectTo: '' }` como última entrada del array de rutas (nivel raíz, hermana de la ruta `''` de `Catalog`) — cualquier URL que no matchee ninguna ruta redirige al catálogo, en vez de romper o quedar en blanco.
 - **El resolver no devuelve la carta por `route.data`, llama al store directo**: en vez de que `cardResolver` retorne el `Card` y `CardDetail` lo lea de `route.data`, el resolver llama `store.load(id)` y no devuelve nada. Evita tener el mismo dato en dos lugares.
 - **Se sacó `loading` del store y de `card-detail.html`**: con el resolver bloqueando la navegación hasta tener los datos, `CardDetail` nunca llega a renderizarse con `loading() === true` — era código muerto. Mientras se resuelve, lo que se ve es la pantalla anterior (el catálogo, que no se destruye) sin ningún indicador.
+
+### HU-03 — Guard para "Mi colección"
+
+Se agregó una ruta nueva, `/collection`, que muestra las cartas marcadas como favoritas. Si no hay ninguna favorita, la ruta queda bloqueada — no se puede navegar a `/collection` directo por URL ni por el link.
+
+#### Cómo funciona
+
+- `FavoritesStore` (`services/favorites.ts`): un signal `ids: number[]` con los IDs marcados como favoritos, persistido en `localStorage`. Expone `has(id)`, `toggle(id)` y `count` (computed). Es `providedIn: 'root'` (vía `@Service()`), a diferencia de `CardDetailStore` que es scoped a una ruta — acá sí necesitamos una única instancia para toda la app.
+- `CardItem` ganó un botón de favorito (★/☆) que llama `favorites.toggle(card().id)` con `stopPropagation()` para no disparar el `routerLink` del `<article>`. Se reutiliza tal cual en el grid del catálogo y en `/collection`.
+- `Collection` (`components/collection/`): pide con `CardService.getCard(id)` cada carta favorita (`Promise.all`), y filtra ese resultado contra `favorites.has(...)` con un `computed()` — así, si sacás una carta de favoritos estando en `/collection`, desaparece al toque sin tener que recargar.
+- `hasFavoritesGuard` (`guards/has-favorites.guard.ts`): `CanActivateFn` que revisa `favorites.count() > 0`; si no hay favoritos, hace `router.navigate(['/'])` en vez de dejar entrar.
+- `app.routes.ts`: `collection` es una ruta hermana de `''`, con `canActivate: [hasFavoritesGuard]`.
+- `Catalog` muestra un link "Mi colección (N)" con el conteo en vivo (`favorites.count`).
+
+#### Decisiones
+
+- **La condición del guard es "cero favoritos"** — es la más simple de verificar y no depende de nada más que ya no tengamos.
+- **`FavoritesStore` es `root`, no scoped**: a diferencia de `CardDetailStore` (pensado para compartirse solo entre una carta y sus 3 secciones), acá necesitamos que el catálogo, el detalle y la colección vean siempre los mismos favoritos — por eso va a nivel de toda la app.

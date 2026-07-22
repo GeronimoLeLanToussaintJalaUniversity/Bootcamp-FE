@@ -1,9 +1,26 @@
 .card-item {
+  position: relative;
   border: 1px solid #374151;
   border-radius: 1rem;
   padding: 1rem;
   text-align: center;
   cursor: pointer;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.favorite-btn.active {
+  color: #facc15;
 }
 
 .card-item img {

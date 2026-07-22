@@ -1,0 +1,21 @@
+<a class="back-link" routerLink="/">← Volver al catálogo</a>
+
+<h1>Mi colección</h1>
+
+@if (loading()) {
+  <p class="status">Cargando colección...</p>
+}
+
+@if (error()) {
+  <p class="status error">{{ error() }}</p>
+}
+
+@if (!loading() && !error()) {
+  <div class="grid">
+    @for (card of cards(); track card.id) {
+      <app-card-item [card]="card" />
+    } @empty {
+      <p class="status">Todavía no tenés cartas favoritas.</p>
+    }
+  </div>
+}

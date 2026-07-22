@@ -1,18 +1,22 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { CardService } from '../../services/card';
 import { Card } from '../../models/card.model';
 import { CardItem } from '../card-item/card-item';
 import { SearchBar } from '../search-bar/search-bar';
+import { FavoritesStore } from '../../services/favorites';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CardItem, SearchBar, RouterOutlet],
+  imports: [CardItem, SearchBar, RouterLink, RouterOutlet],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
 export class Catalog implements OnInit {
   private cardService = inject(CardService);
+  private favorites = inject(FavoritesStore);
+
+  favoritesCount = this.favorites.count;
 
   cards = signal<Card[]>([]);
   loading = signal(false);

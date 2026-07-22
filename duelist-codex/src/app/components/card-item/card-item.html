@@ -1,4 +1,13 @@
 <article class="card-item" [routerLink]="['/card', card().id]">
+  <button
+    type="button"
+    class="favorite-btn"
+    [class.active]="isFavorite()"
+    [attr.aria-label]="isFavorite() ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+    (click)="toggleFavorite($event)"
+  >
+    {{ isFavorite() ? '★' : '☆' }}
+  </button>
   <img [src]="card().imageUrl" [alt]="card().name" />
   <h3>{{ card().name }}</h3>
   <p>{{ card().type }}</p>

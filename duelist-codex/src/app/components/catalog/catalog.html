@@ -1,5 +1,7 @@
 <h1>Duelist Codex</h1>
 
+<a class="collection-link" routerLink="/collection">Mi colección ({{ favoritesCount() }})</a>
+
 <app-search-bar [(term)]="searchTerm" />
 
 @if (loading()) {
