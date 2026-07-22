@@ -154,3 +154,17 @@ Se agregó una ruta nueva, `/collection`, que muestra las cartas marcadas como f
 
 - **La condición del guard es "cero favoritos"** — es la más simple de verificar y no depende de nada más que ya no tengamos.
 - **`FavoritesStore` es `root`, no scoped**: a diferencia de `CardDetailStore` (pensado para compartirse solo entre una carta y sus 3 secciones), acá necesitamos que el catálogo, el detalle y la colección vean siempre los mismos favoritos — por eso va a nivel de toda la app.
+
+### HU-04 — Abrir el detalle de una carta
+
+Al navegar al detalle de una carta, los datos ya están listos antes de que se termine de activar la vista — no hay pantalla vacía ni a medio cargar, ni importa si se llega ahí desde el catálogo o entrando directo por URL.
+
+#### Cómo funciona
+
+- El fetch lo dispara `cardResolver` (`resolvers/card.resolver.ts`), que corre **antes** de activar la ruta `card/:id` y llama `store.load(id)` esperando (`await`) a que termine. Como es parte de la configuración de la ruta (no de un click en particular), corre siempre — llegues por `routerLink` desde `CardItem` o pegando la URL directo en el navegador.
+- **Carta no encontrada**: `CardDetailStore.load(id)` distingue dos casos de fallo. Si `CardService.getCard(id)` resuelve con `null` (la API respondió bien pero no hay ninguna carta con ese id), se setea `error` con "No se encontró la carta solicitada.". Si la petición en sí falla (`catch`), se setea el mensaje genérico de error de red. Antes de este ajuste, el caso de "no encontrada" no seteaba ningún error y el modal quedaba completamente en blanco.
+- `card-detail.html` ya tenía el `@if (error())` con el mensaje — no hizo falta tocar el template, solo que `CardDetailStore` cubriera el caso que le faltaba.
+
+#### Decisiones
+
+- **El resolver es lo que garantiza la consistencia catálogo-vs-URL-directa**, no algo que haya que armar aparte: al estar en la configuración de la ruta, Angular lo corre en cualquier forma de llegar a `card/:id`. Esto ya estaba resuelto desde HU-02 (cuando se agregó el resolver junto con las secciones hijas); esta historia lo que sumó fue el caso de "carta no encontrada" que faltaba cubrir.

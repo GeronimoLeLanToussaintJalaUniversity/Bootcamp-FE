@@ -11,10 +11,15 @@ export class CardDetailStore {
 
   async load(id: string): Promise<void> {
     this.error.set(null);
+    this.card.set(null);
 
     try {
       const card = await this.cardService.getCard(id);
-      this.card.set(card);
+      if (card) {
+        this.card.set(card);
+      } else {
+        this.error.set('No se encontró la carta solicitada.');
+      }
     } catch {
       this.error.set('No se pudo cargar la carta. Intentá de nuevo más tarde.');
     }
