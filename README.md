@@ -183,3 +183,16 @@ Las cartas con ATK mayor a 1200 se resaltan visualmente (borde + resplandor nara
 
 - **`computed()` + host binding, no `effect()` + `Renderer2`**: Alcanza con un `computed()` atado a un binding de clase en el host es menos código, no toca el DOM a mano.
 - **Es una directiva de atributo, no estructural**: no crea ni destruye elementos (como si eran `qzRow` o el `*appCustomIf` de clase), solo le agrega/saca una clase CSS a un elemento que ya existe.
+
+### HU-06 — Leer información de cartas de forma legible
+
+Los precios de una carta llegaban de la API como strings crudos, concatenados a mano con el símbolo de moneda en el template (`€{{ prices.cardmarket_price }}`) — sin ningún manejo de valores vacíos o inválidos por campo.
+
+#### Cómo funciona
+
+- `CardPricePipe` (`pipes/card-price.pipe.ts`): un pipe puro (`cardPrice`) que recibe el string crudo de precio y un símbolo de moneda opcional (`$` por defecto), y devuelve el precio formateado a 2 decimales con el símbolo antepuesto — o `'Sin cotización'` si el valor viene vacío, `null`, `undefined`, o no es parseable a número.
+- Se usa 5 veces en `price.html`, una por cada fuente de precio (Cardmarket, TCGplayer, eBay, Amazon, CoolStuffInc) — la lógica de formateo y de manejo de valores inválidos vive en un solo lugar, no repetida en cada `<p>`.
+
+#### Decisiones
+
+- **Símbolo de moneda como parámetro del pipe** (`cardPrice: '€'`) en vez de un pipe distinto por moneda: la lógica de formateo/validación es la misma, solo cambia el símbolo.
