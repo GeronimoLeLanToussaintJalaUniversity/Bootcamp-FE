@@ -196,3 +196,18 @@ Los precios de una carta llegaban de la API como strings crudos, concatenados a 
 #### Decisiones
 
 - **Símbolo de moneda como parámetro del pipe** (`cardPrice: '€'`) en vez de un pipe distinto por moneda: la lógica de formateo/validación es la misma, solo cambia el símbolo.
+
+### HU-07 — Manejar errores de red de forma centralizada
+
+El manejo de errores de la API estaba duplicado: cada método de `CardService` envolvía su llamada en un `try/catch` propio, y cada componente que lo consumía (`Catalog`, `Collection`, `CardDetailStore`) repetía la misma lógica de "si falla, mostrar un mensaje". Además, la carga de cartas en `Catalog` manejaba `loading`/`error`/`cards` a mano con signals y `ngOnInit`.
+
+#### Cómo funciona
+
+- `errorInterceptor` (`interceptors\error.interceptor.ts`): interceptor funcional de `HttpClient` que intercepta toda respuesta con error, la traduce a un mensaje legible según el código de estado (`0` sin conexión, `404` recurso inexistente, `>=500` error de servidor, resto genérico), y la vuelve a lanzar como un `Error` con ese mensaje.
+- Registrado una sola vez en `app.config.ts` vía `provideHttpClient(withInterceptors([errorInterceptor]))` — aplica a todas las requests salientes sin tocar cada servicio.
+- `Catalog` ahora carga las cartas con `resource()` en vez de signals manuales: `cardsResource = resource({ loader: () => this.cardService.getCards() })`. `cards`, `loading` y `error` son `computed()` derivados de `cardsResource.value()`, `.isLoading()` y `.error()` — ya no hay `ngOnInit` ni `loadCards()` propio.
+
+#### Decisiones
+
+- **Interceptor de error, no de auth/loading**: no había ningún interceptor implementado todavía, y el manejo de errores era lo que estaba duplicado en más lugares — centralizarlo pega directo con la calidad de código del resto del challenge.
+- **`resource()` solo en `Catalog`**: es el único lugar donde la carga inicial de datos todavía se manejaba con signals manuales; `CardDetailStore` ya resuelve sus datos vía el resolver de la ruta.
