@@ -4,6 +4,12 @@ import { firstValueFrom } from 'rxjs';
 import { Card, CardApiResponse, RawCard } from '../models/card.model';
 import { ApiError } from '../interceptors/error.interceptor';
 
+export interface CardFilters {
+  name?: string;
+  type?: string;
+  attribute?: string;
+}
+
 const NO_IMAGE =
   'data:image/svg+xml;utf8,' +
   encodeURIComponent(
@@ -18,11 +24,19 @@ export class CardService {
   private http = inject(HttpClient);
   private readonly baseUrl = 'https://db.ygoprodeck.com/api/v7/cardinfo.php';
 
-  async getCards(query?: string): Promise<Card[]> {
+  async getCards(filters: CardFilters = {}): Promise<Card[]> {
     let params = new HttpParams();
-    if (query) {
-      params = params.set('fname', query);
+    if (filters.name) {
+      params = params.set('fname', filters.name);
     }
+    if (filters.type) {
+      params = params.set('type', filters.type);
+    }
+    if (filters.attribute) {
+      params = params.set('attribute', filters.attribute);
+    }
+
+    const hasFilters = Boolean(filters.name || filters.type || filters.attribute);
 
     try {
       const response = await firstValueFrom(
@@ -30,7 +44,7 @@ export class CardService {
       );
       return response.data.map(this.toCard);
     } catch (error) {
-      if (query && error instanceof ApiError && error.status === 400) {
+      if (hasFilters && error instanceof ApiError && error.status === 400) {
         return [];
       }
       throw error;

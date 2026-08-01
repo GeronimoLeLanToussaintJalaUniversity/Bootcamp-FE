@@ -1,0 +1,59 @@
+<div class="filters">
+  <select
+    class="filter-select"
+    [value]="type()"
+    (change)="type.set($any($event.target).value)"
+  >
+    <option value="">Todos los tipos</option>
+    @for (cardType of types; track cardType) {
+    <option [value]="cardType">{{ cardType }}</option>
+    }
+  </select>
+
+  <select
+    class="filter-select"
+    [value]="attribute()"
+    (change)="attribute.set($any($event.target).value)"
+  >
+    <option value="">Todos los atributos</option>
+    @for (cardAttribute of attributes; track cardAttribute) {
+    <option [value]="cardAttribute">{{ cardAttribute }}</option>
+    }
+  </select>
+
+  <div class="range">
+    <span class="range-label">ATK</span>
+    <input
+      class="range-input"
+      type="number"
+      placeholder="mín"
+      [value]="atkMin()"
+      (input)="onNumberInput($event, 'atkMin')"
+    />
+    <input
+      class="range-input"
+      type="number"
+      placeholder="máx"
+      [value]="atkMax()"
+      (input)="onNumberInput($event, 'atkMax')"
+    />
+  </div>
+
+  <div class="range">
+    <span class="range-label">DEF</span>
+    <input
+      class="range-input"
+      type="number"
+      placeholder="mín"
+      [value]="defMin()"
+      (input)="onNumberInput($event, 'defMin')"
+    />
+    <input
+      class="range-input"
+      type="number"
+      placeholder="máx"
+      [value]="defMax()"
+      (input)="onNumberInput($event, 'defMax')"
+    />
+  </div>
+</div>

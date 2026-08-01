@@ -238,3 +238,21 @@ La búsqueda ya reaccionaba en vivo a lo que se escribía, pero filtraba en memo
 - **Búsqueda contra la API en vez de filtrado en memoria**: ya se traía el catálogo completo en cada carga, lo cual no escala y no deja lugar para practicar el debounce contra una petición real, que es justamente lo que pide este challenge.
 - **`debounceTime(300)` + `distinctUntilChanged()`**: 300ms es un balance típico entre percibir la búsqueda como instantánea y no spamear la API mientras se sigue escribiendo; `distinctUntilChanged()` evita relanzar la misma búsqueda si el valor debounceado no cambió (ej. escribir y borrar rápido).
 - **`ApiError` con `status` en el interceptor** (`interceptors/error.interceptor.ts`): antes el interceptor devolvía un `Error` genérico sin código de estado, así que no había forma de distinguir "no hay resultados" (400) de una falla real de servidor desde `CardService`. Se extendió a una clase `ApiError extends Error` con `status`, sin cambiar el resto del contrato (sigue siendo un `Error`, sigue centralizado en un solo lugar).
+
+### HU-04 — Combinar filtros sin perder el control
+
+Solo se podía buscar por nombre. Esta historia agrega filtro por tipo de carta, atributo, y rango de ATK/DEF, combinables entre sí y con la búsqueda por nombre.
+
+#### Cómo funciona
+
+- `Filters` (`components/filters/`), componente nuevo: expone `type`, `attribute`, `atkMin`, `atkMax`, `defMin`, `defMax` como `model()`, mismo patrón two-way binding que `SearchBar.term`. Los `<select>` de tipo/atributo usan listas fijas (`CARD_TYPES`, `CARD_ATTRIBUTES`); los rangos de ATK/DEF son inputs numéricos.
+- `CardService.getCards` ahora recibe un objeto `CardFilters` (`{ name?, type?, attribute? }`) en vez de un string suelto, y arma los `HttpParams` (`fname`, `type`, `attribute`) según cuáles vengan definidos.
+- `Catalog.serverFilters` es un `computed()` que combina `debouncedSearchTerm`, `type()` y `attribute()` en un solo objeto — esa es la única fuente de verdad que lee `cardsResource.params`, así que cualquier cambio en cualquiera de los tres dispara un solo re-fetch con todos los criterios activos juntos, no uno por separado.
+- ATK/DEF quedan fuera de `serverFilters` porque la API solo acepta **un límite por request** (`atk=gte1000` o `atk=lte2000`, nunca ambos a la vez en la misma consulta) — no soporta rango real. Por eso `filteredCards` es un segundo `computed()` que aplica `atkMin`/`atkMax`/`defMin`/`defMax` en el cliente, sobre el resultado ya filtrado por nombre/tipo/atributo del lado del servidor.
+- `hasActiveFilters` decide el mensaje de "sin resultados": si hay algún filtro activo (nombre, tipo, atributo o rango) se informa que la combinación no encontró nada; si no hay ningún filtro, es que el catálogo mismo vino vacío.
+
+#### Decisiones
+
+- **Tipo y atributo al servidor, ATK/DEF al cliente**: es una solución híbrida forzada por una limitación real de la API (un solo operador de comparación por campo por request), no una elección arbitraria — filtrar todo en el cliente hubiera sido más simple pero renunciaba a la práctica de mandar los filtros que la API sí soporta bien.
+- **Un solo `computed()` (`serverFilters`) como fuente de verdad para el `resource()`**: evita que cambiar un filtro dispare una petición con los demás desactualizados; todos los criterios activos viajan juntos en cada re-fetch.
+- **`Filters` como componente dumb separado de `SearchBar`**: mismo criterio de Smart/Dumb Components ya usado en el proyecto — cada uno expone su propio estado vía `model()`, `Catalog` es el único que combina todo.

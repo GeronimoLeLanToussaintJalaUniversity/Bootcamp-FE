@@ -4,6 +4,15 @@
 
 <app-search-bar [(term)]="searchTerm" />
 
+<app-filters
+  [(type)]="type"
+  [(attribute)]="attribute"
+  [(atkMin)]="atkMin"
+  [(atkMax)]="atkMax"
+  [(defMin)]="defMin"
+  [(defMax)]="defMax"
+/>
+
 @if (loading()) {
 <p class="status">Cargando cartas...</p>
 }
@@ -14,15 +23,15 @@
 
 @if (!loading() && !error()) {
 <div class="grid">
-  @for (card of cards(); track card.id) {
+  @for (card of filteredCards(); track card.id) {
   @defer (on viewport) {
   <app-card-item [card]="card" />
   } @placeholder {
   <div class="card-placeholder"></div>
   }
   } @empty {
-  @if (searchTerm()) {
-  <p class="status">No se encontraron cartas que coincidan con "{{ searchTerm() }}".</p>
+  @if (hasActiveFilters()) {
+  <p class="status">No se encontraron cartas con los filtros aplicados.</p>
   } @else {
   <p class="status">No se encontraron cartas.</p>
   }
