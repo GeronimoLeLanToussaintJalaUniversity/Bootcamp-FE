@@ -2,6 +2,7 @@ import { Service, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Card, CardApiResponse, RawCard } from '../models/card.model';
+import { ApiError } from '../interceptors/error.interceptor';
 
 const NO_IMAGE =
   'data:image/svg+xml;utf8,' +
@@ -23,11 +24,17 @@ export class CardService {
       params = params.set('fname', query);
     }
 
-    const response = await firstValueFrom(
-      this.http.get<CardApiResponse>(this.baseUrl, { params }),
-    );
-
-    return response.data.map(this.toCard);
+    try {
+      const response = await firstValueFrom(
+        this.http.get<CardApiResponse>(this.baseUrl, { params }),
+      );
+      return response.data.map(this.toCard);
+    } catch (error) {
+      if (query && error instanceof ApiError && error.status === 400) {
+        return [];
+      }
+      throw error;
+    }
   }
 
   async getCard(id: string): Promise<Card | null> {

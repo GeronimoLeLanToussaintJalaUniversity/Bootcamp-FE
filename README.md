@@ -211,3 +211,30 @@ El manejo de errores de la API estaba duplicado: cada método de `CardService` e
 
 - **Interceptor de error, no de auth/loading**: no había ningún interceptor implementado todavía, y el manejo de errores era lo que estaba duplicado en más lugares — centralizarlo pega directo con la calidad de código del resto del challenge.
 - **`resource()` solo en `Catalog`**: es el único lugar donde la carga inicial de datos todavía se manejaba con signals manuales; `CardDetailStore` ya resuelve sus datos vía el resolver de la ruta.
+
+## Challenge 3 — Duelist Codex: Búsqueda Reactiva
+
+### HU-01 — Leer información de cartas de forma legible (ya resuelta)
+
+Esta historia es la misma que HU-06 del Challenge 2 (`CardPricePipe`) — el enunciado del Challenge 3 la traslada desde ahí porque tiene más sentido junto al resto del trabajo reactivo de esta semana. No requirió trabajo nuevo; ver el detalle en la sección [HU-06 del Challenge 2](#hu-06--leer-información-de-cartas-de-forma-legible).
+
+### HU-02 — Confiar en una app que avisa cuando algo falla (ya resuelta)
+
+Esta historia es la misma que HU-07 del Challenge 2 (`errorInterceptor` + `resource()` en `Catalog`) — también trasladada desde ahí por el mismo motivo. No requirió trabajo nuevo; ver el detalle en la sección [HU-07 del Challenge 2](#hu-07--manejar-errores-de-red-de-forma-centralizada).
+
+### HU-03 — Buscar sin esperar a presionar un botón
+
+La búsqueda ya reaccionaba en vivo a lo que se escribía, pero filtraba en memoria sobre el catálogo completo ya descargado — es decir, no había ninguna petición HTTP disparada por la búsqueda, y por lo tanto tampoco ningún riesgo de saturar la API, pero tampoco se aprovechaba el filtro por nombre que la API ya soporta (`fname`).
+
+#### Cómo funciona
+
+- `Catalog.searchTerm` (signal, escrito por `SearchBar` vía `[(term)]`) se convierte a Observable con `toObservable()`, se le aplica `.pipe(debounceTime(300), distinctUntilChanged())`, y se vuelve a convertir a signal con `toSignal()` → `debouncedSearchTerm`.
+- `cardsResource` (el mismo `resource()` de HU-07) ahora recibe `params: () => this.debouncedSearchTerm().trim()`, y el `loader` le pasa ese valor a `CardService.getCards(query)` — que ya soportaba un parámetro de búsqueda (`fname`) pero no se estaba usando desde `Catalog`. Cada cambio de `params` reinicia el `resource()` automáticamente (carga/error/valor se actualizan solos).
+- Si el campo de búsqueda queda vacío, `params` es `''`, `getCards(undefined)` trae el catálogo completo — mismo comportamiento que antes de escribir nada.
+- La API externa (YGOPRODeck) devuelve `400` cuando un `fname` no matchea ninguna carta, en vez de una lista vacía con `200`. `CardService.getCards` lo contempla: si hay una query activa y el error es un `400`, devuelve `[]` en vez de propagar el error — así "no hay resultados" se muestra como catálogo vacío, no como un error de red.
+
+#### Decisiones
+
+- **Búsqueda contra la API en vez de filtrado en memoria**: ya se traía el catálogo completo en cada carga, lo cual no escala y no deja lugar para practicar el debounce contra una petición real, que es justamente lo que pide este challenge.
+- **`debounceTime(300)` + `distinctUntilChanged()`**: 300ms es un balance típico entre percibir la búsqueda como instantánea y no spamear la API mientras se sigue escribiendo; `distinctUntilChanged()` evita relanzar la misma búsqueda si el valor debounceado no cambió (ej. escribir y borrar rápido).
+- **`ApiError` con `status` en el interceptor** (`interceptors/error.interceptor.ts`): antes el interceptor devolvía un `Error` genérico sin código de estado, así que no había forma de distinguir "no hay resultados" (400) de una falla real de servidor desde `CardService`. Se extendió a una clase `ApiError extends Error` con `status`, sin cambiar el resto del contrato (sigue siendo un `Error`, sigue centralizado en un solo lugar).

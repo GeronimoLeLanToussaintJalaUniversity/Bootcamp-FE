@@ -14,7 +14,7 @@
 
 @if (!loading() && !error()) {
 <div class="grid">
-  @for (card of filteredCards(); track card.id) {
+  @for (card of cards(); track card.id) {
   @defer (on viewport) {
   <app-card-item [card]="card" />
   } @placeholder {
