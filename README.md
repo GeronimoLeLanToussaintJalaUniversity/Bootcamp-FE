@@ -99,3 +99,115 @@ Cambios hechos entre el Challenge 1 y el Challenge 2
 - **Modo oscuro**: fondo oscuro global (`styles.css`) y colores ajustados en `catalog`, `card-item`, `card-detail`, `tabs` y `search-bar` para mantener contraste. Sin toggle, siempre oscuro.
 
 ## Challenge 2 — Duelist Codex: Navegación y Datos Resilientes
+
+### HU-01 — Navegar la app por URL
+
+El catálogo y el detalle de cada carta tienen su propia URL. `/` muestra el catálogo, `/card/:id` el detalle de esa carta puntual — se puede entrar directo por URL, refrescar estando en el detalle, o usar atrás/adelante del navegador, y funciona en todos los casos.
+
+#### Cómo funciona
+
+- `app.routes.ts` define `Catalog` en la ruta `''`, con `CardDetail` como ruta hija en `card/:id`. `Catalog` tiene su propio `<router-outlet>` en el template, en el mismo lugar donde antes estaba el `@if (selectedCard(); as card) { ... }` del modal.
+- `CardItem` ya no emite un evento al hacer click: usa `[routerLink]="['/card', card().id]"` para navegar directo.
+- `CardDetail` ya no recibe la carta por `input()` desde `Catalog`. Lee el `id` de la URL con `ActivatedRoute` + `toSignal(route.paramMap)` (convierte el observable en signal, sin suscribirse a mano) y un `computed()` que lo extrae del `paramMap`. Con ese `id` pide su propia carta con el nuevo método `CardService.getCard(id)`, que filtra la API por `id` en vez de `fname`. Tiene sus propios signals `card`, `loading` y `error`, con el mismo patrón `ngOnInit` + try/catch/finally que ya usaba `Catalog`.
+- Cerrar el modal (✕ o click afuera) pasó de emitir `close` a navegar con `[routerLink]="['/']"`.
+
+#### Decisiones
+
+- **`CardDetail` como ruta hija de `Catalog`, no hermana**: así `Catalog` nunca se destruye al entrar o salir del detalle — se mantiene el mismo efecto de modal sobre el catálogo, y la búsqueda/estado de HU-05 del Challenge 1 siguen intactos, ahora con URL real de regalo.
+- **`CardDetail` busca su propia carta por `id`** en vez de recibirla de `Catalog`: si se entra directo por `/card/123` (sin pasar por el catálogo primero), `Catalog` recién está arrancando su propio fetch y no se puede asumir que esa carta ya esté cargada.
+
+### HU-02 — Explorar secciones del detalle como sub-vistas
+
+Efecto, Estadísticas y Precio dejaron de ser un `@switch` local y ahora son 3 rutas hijas de `card/:id` (`effect`, `stats`, `price`), cada una con su propia URL. Entrar directo a `/card/123/price` funciona igual que entrar a `/card/123` y clickear la pestaña.
+
+#### Cómo funciona
+
+- `app.routes.ts`: `card/:id` ahora tiene `children`, con una ruta vacía que redirige a `effect` (`{ path: '', redirectTo: 'effect', pathMatch: 'full' }`) para que `/card/123` siempre caiga en una sección concreta.
+- `CardDetail` agregó su propio `<router-outlet>` (importando `RouterOutlet`) donde antes estaba el `@switch (activeTab())`. Las 3 secciones viven en `components/card-detail/effect|stats|price/`, como subcarpetas de `card-detail` — reflejando la jerarquía de rutas. Cada una es un componente propio (`CardEffect`, `CardStats`, `CardPrice`) con el HTML que antes vivía en cada `@case` del switch.
+- `Tabs` dejó de manejar un `activeIndex` local (`model<number>`) y ahora recibe `tabs: TabLink[]` (`{ label, link }[]`), renderizando cada uno como `<a [routerLink]="tab.link" routerLinkActive="active">`. Sigue sin saber nada de `Card`, `effect`/`stats`/`price` ni de esta app en particular — solo sabe renderizar una lista de links con su estado activo, igual que antes solo sabía renderizar labels con un índice activo.
+- **Compartir la carta con las 3 secciones**: como ahora son 3 componentes propios detrás de un `<router-outlet>` (no se les puede pasar un `@Input()` — el router-outlet no permite bindear inputs custom a un componente que decide en runtime), `CardDetailStore` (`services/card-detail-store.ts`) es el dueño único de `card`/`error` y de cómo se cargan (`load(id)`, con `CardService.getCard(id)`). Se provee a nivel de la ruta `card/:id` (`providers: [CardDetailStore]` en `app.routes.ts`), no del componente. Como `CardEffect`/`CardStats`/`CardPrice` son descendientes de esa ruta, la inyección jerárquica les da la misma instancia — leen `store.card`/`store.error` directo, sin volver a pedir nada a la API.
+- `CardDetail` ya no dispara el fetch en `ngOnInit`: la ruta `card/:id` tiene un `resolve: { card: cardResolver }` (`resolvers/card.resolver.ts`) que llama `store.load(id)` y espera a que termine antes de activar la ruta. `CardDetail` quedó sin `ActivatedRoute`, sin `toSignal`/`computed` ni `ngOnInit` — solo inyecta `CardDetailStore` y expone `card`/`error`.
+
+#### Decisiones
+
+- **`Tabs` se mantiene domain-agnostic a propósito**: en vez de que `Tabs` conozca las 3 secciones de una carta, `CardDetail` es quien arma el array `TabLink[]` y se lo pasa. `Tabs` solo entiende "lista de (label, link)", por lo que serviría igual para cualquier otro conjunto de sub-vistas en rutas de esta o de otra app.
+- **Rutas relativas (`'effect'`, no `'/effect'`)**: como estas rutas son hijas de `card/:id`, `routerLink` las resuelve relativas a esa ruta activa. Si se navega desde `CardItem` a otra carta, no hace falta reconstruir el path completo.
+- **Sin `effect()` para "sincronizar" estado**: una primera versión tenía a `CardDetail` con su propio signal `card`, copiándolo al store con un `effect()`. Es el anti-patrón que se remarcó en clase (`effect()` como último recurso, no para propagar estado). Se corrigió: `CardDetailStore` es el único dueño del signal, `CardDetail` expone una referencia directa (`card = this.store.card`), no una copia.
+- Se agregó `{ path: '**', redirectTo: '' }` como última entrada del array de rutas (nivel raíz, hermana de la ruta `''` de `Catalog`) — cualquier URL que no matchee ninguna ruta redirige al catálogo, en vez de romper o quedar en blanco.
+- **El resolver no devuelve la carta por `route.data`, llama al store directo**: en vez de que `cardResolver` retorne el `Card` y `CardDetail` lo lea de `route.data`, el resolver llama `store.load(id)` y no devuelve nada. Evita tener el mismo dato en dos lugares.
+- **Se sacó `loading` del store y de `card-detail.html`**: con el resolver bloqueando la navegación hasta tener los datos, `CardDetail` nunca llega a renderizarse con `loading() === true` — era código muerto. Mientras se resuelve, lo que se ve es la pantalla anterior (el catálogo, que no se destruye) sin ningún indicador.
+
+### HU-03 — Guard para "Mi colección"
+
+Se agregó una ruta nueva, `/collection`, que muestra las cartas marcadas como favoritas. Si no hay ninguna favorita, la ruta queda bloqueada — no se puede navegar a `/collection` directo por URL ni por el link.
+
+#### Cómo funciona
+
+- `FavoritesStore` (`services/favorites.ts`): un signal `ids: number[]` con los IDs marcados como favoritos, persistido en `localStorage`. Expone `has(id)`, `toggle(id)` y `count` (computed). Es `providedIn: 'root'` (vía `@Service()`), a diferencia de `CardDetailStore` que es scoped a una ruta — acá sí necesitamos una única instancia para toda la app.
+- `CardItem` ganó un botón de favorito (★/☆) que llama `favorites.toggle(card().id)` con `stopPropagation()` para no disparar el `routerLink` del `<article>`. Se reutiliza tal cual en el grid del catálogo y en `/collection`.
+- `Collection` (`components/collection/`): pide con `CardService.getCard(id)` cada carta favorita (`Promise.all`), y filtra ese resultado contra `favorites.has(...)` con un `computed()` — así, si sacás una carta de favoritos estando en `/collection`, desaparece al toque sin tener que recargar.
+- `hasFavoritesGuard` (`guards/has-favorites.guard.ts`): `CanActivateFn` que revisa `favorites.count() > 0`; si no hay favoritos, hace `router.navigate(['/'])` en vez de dejar entrar.
+- `app.routes.ts`: `collection` es una ruta hermana de `''`, con `canActivate: [hasFavoritesGuard]`.
+- `Catalog` muestra un link "Mi colección (N)" con el conteo en vivo (`favorites.count`).
+
+#### Decisiones
+
+- **La condición del guard es "cero favoritos"** — es la más simple de verificar y no depende de nada más que ya no tengamos.
+- **`FavoritesStore` es `root`, no scoped**: a diferencia de `CardDetailStore` (pensado para compartirse solo entre una carta y sus 3 secciones), acá necesitamos que el catálogo, el detalle y la colección vean siempre los mismos favoritos — por eso va a nivel de toda la app.
+
+### HU-04 — Abrir el detalle de una carta
+
+Al navegar al detalle de una carta, los datos ya están listos antes de que se termine de activar la vista — no hay pantalla vacía ni a medio cargar, ni importa si se llega ahí desde el catálogo o entrando directo por URL.
+
+#### Cómo funciona
+
+- El fetch lo dispara `cardResolver` (`resolvers/card.resolver.ts`), que corre **antes** de activar la ruta `card/:id` y llama `store.load(id)` esperando (`await`) a que termine. Como es parte de la configuración de la ruta (no de un click en particular), corre siempre — llegues por `routerLink` desde `CardItem` o pegando la URL directo en el navegador.
+- **Carta no encontrada**: `CardDetailStore.load(id)` distingue dos casos de fallo. Si `CardService.getCard(id)` resuelve con `null` (la API respondió bien pero no hay ninguna carta con ese id), se setea `error` con "No se encontró la carta solicitada.". Si la petición en sí falla (`catch`), se setea el mensaje genérico de error de red. Antes de este ajuste, el caso de "no encontrada" no seteaba ningún error y el modal quedaba completamente en blanco.
+- `card-detail.html` ya tenía el `@if (error())` con el mensaje — no hizo falta tocar el template, solo que `CardDetailStore` cubriera el caso que le faltaba.
+
+#### Decisiones
+
+- **El resolver es lo que garantiza la consistencia catálogo-vs-URL-directa**, no algo que haya que armar aparte: al estar en la configuración de la ruta, Angular lo corre en cualquier forma de llegar a `card/:id`. Esto ya estaba resuelto desde HU-02 (cuando se agregó el resolver junto con las secciones hijas); esta historia lo que sumó fue el caso de "carta no encontrada" que faltaba cubrir.
+
+### HU-05 — Identificar cartas destacadas de un vistazo
+
+Las cartas con ATK mayor a 1200 se resaltan visualmente (borde + resplandor naranja) en cualquier lugar donde se listen cartas — catálogo y colección — sin que cada componente tenga que implementar esa lógica por su cuenta.
+
+#### Cómo funciona
+
+- `HighlightCardDirective` (`directives/highlight-card.directive.ts`): una directiva de atributo, `[appHighlightCard]`, que recibe la carta (`input.required<Card>({ alias: 'appHighlightCard' })`) y calcula `isHighlighted = computed(() => (card().atk ?? 0) > 1200)`. Vía `host: { '[class.highlighted-card]': 'isHighlighted()' }` le agrega o saca la clase `highlighted-card` al elemento donde se aplica.
+- Se aplica una sola vez, en `card-item.html` (`<article [appHighlightCard]="card()">`), no en cada lugar que renderiza cartas. Como `CardItem` ya se reutiliza en `Catalog` y en `Collection`, ambos quedan resaltando cartas destacadas gratis, sin tocarlos.
+- El estilo (`.highlighted-card`) vive en `card-item.css`, junto a la clase `.card-item` que ya estaba — la directiva solo pone/saca la clase, el cómo se ve queda en el componente dueño del elemento.
+
+#### Decisiones
+
+- **`computed()` + host binding, no `effect()` + `Renderer2`**: Alcanza con un `computed()` atado a un binding de clase en el host es menos código, no toca el DOM a mano.
+- **Es una directiva de atributo, no estructural**: no crea ni destruye elementos (como si eran `qzRow` o el `*appCustomIf` de clase), solo le agrega/saca una clase CSS a un elemento que ya existe.
+
+### HU-06 — Leer información de cartas de forma legible
+
+Los precios de una carta llegaban de la API como strings crudos, concatenados a mano con el símbolo de moneda en el template (`€{{ prices.cardmarket_price }}`) — sin ningún manejo de valores vacíos o inválidos por campo.
+
+#### Cómo funciona
+
+- `CardPricePipe` (`pipes/card-price.pipe.ts`): un pipe puro (`cardPrice`) que recibe el string crudo de precio y un símbolo de moneda opcional (`$` por defecto), y devuelve el precio formateado a 2 decimales con el símbolo antepuesto — o `'Sin cotización'` si el valor viene vacío, `null`, `undefined`, o no es parseable a número.
+- Se usa 5 veces en `price.html`, una por cada fuente de precio (Cardmarket, TCGplayer, eBay, Amazon, CoolStuffInc) — la lógica de formateo y de manejo de valores inválidos vive en un solo lugar, no repetida en cada `<p>`.
+
+#### Decisiones
+
+- **Símbolo de moneda como parámetro del pipe** (`cardPrice: '€'`) en vez de un pipe distinto por moneda: la lógica de formateo/validación es la misma, solo cambia el símbolo.
+
+### HU-07 — Manejar errores de red de forma centralizada
+
+El manejo de errores de la API estaba duplicado: cada método de `CardService` envolvía su llamada en un `try/catch` propio, y cada componente que lo consumía (`Catalog`, `Collection`, `CardDetailStore`) repetía la misma lógica de "si falla, mostrar un mensaje". Además, la carga de cartas en `Catalog` manejaba `loading`/`error`/`cards` a mano con signals y `ngOnInit`.
+
+#### Cómo funciona
+
+- `errorInterceptor` (`interceptors\error.interceptor.ts`): interceptor funcional de `HttpClient` que intercepta toda respuesta con error, la traduce a un mensaje legible según el código de estado (`0` sin conexión, `404` recurso inexistente, `>=500` error de servidor, resto genérico), y la vuelve a lanzar como un `Error` con ese mensaje.
+- Registrado una sola vez en `app.config.ts` vía `provideHttpClient(withInterceptors([errorInterceptor]))` — aplica a todas las requests salientes sin tocar cada servicio.
+- `Catalog` ahora carga las cartas con `resource()` en vez de signals manuales: `cardsResource = resource({ loader: () => this.cardService.getCards() })`. `cards`, `loading` y `error` son `computed()` derivados de `cardsResource.value()`, `.isLoading()` y `.error()` — ya no hay `ngOnInit` ni `loadCards()` propio.
+
+#### Decisiones
+
+- **Interceptor de error, no de auth/loading**: no había ningún interceptor implementado todavía, y el manejo de errores era lo que estaba duplicado en más lugares — centralizarlo pega directo con la calidad de código del resto del challenge.
+- **`resource()` solo en `Catalog`**: es el único lugar donde la carga inicial de datos todavía se manejaba con signals manuales; `CardDetailStore` ya resuelve sus datos vía el resolver de la ruta.

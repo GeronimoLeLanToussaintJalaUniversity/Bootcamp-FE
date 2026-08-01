@@ -6,9 +6,7 @@
   font-family: sans-serif;
 }
 
-.collection-link {
-  display: inline-block;
-  margin-bottom: 1rem;
+.back-link {
   color: #9ca3af;
   text-decoration: none;
 }
@@ -17,6 +15,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .status {
@@ -26,10 +25,4 @@
 
 .status.error {
   color: #dc2626;
-}
-
-.card-placeholder {
-  min-height: 10rem;
-  border: 1px solid #374151;
-  border-radius: 1rem;
 }

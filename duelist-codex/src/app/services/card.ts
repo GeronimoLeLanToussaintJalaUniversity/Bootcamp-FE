@@ -30,6 +30,17 @@ export class CardService {
     return response.data.map(this.toCard);
   }
 
+  async getCard(id: string): Promise<Card | null> {
+    const params = new HttpParams().set('id', id);
+
+    const response = await firstValueFrom(
+      this.http.get<CardApiResponse>(this.baseUrl, { params }),
+    );
+
+    const raw = response.data[0];
+    return raw ? this.toCard(raw) : null;
+  }
+
   private toCard(raw: RawCard): Card {
     return {
       id: raw.id,

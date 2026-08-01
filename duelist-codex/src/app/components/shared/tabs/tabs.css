@@ -13,6 +13,8 @@
   color: #9ca3af;
   font-size: 1rem;
   border-bottom: 2px solid transparent;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .tab.active {

@@ -1,17 +1,23 @@
-import { Component, input, output, signal } from '@angular/core';
-import { Card } from '../../models/card.model';
-import { Tabs } from '../shared/tabs/tabs';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { CardDetailStore } from '../../services/card-detail-store';
+import { Tabs, TabLink } from '../shared/tabs/tabs';
 
 @Component({
   selector: 'app-card-detail',
-  imports: [Tabs],
+  imports: [Tabs, RouterLink, RouterOutlet],
   templateUrl: './card-detail.html',
   styleUrl: './card-detail.css',
 })
 export class CardDetail {
-  card = input.required<Card>();
-  close = output<void>();
+  private store = inject(CardDetailStore);
 
-  tabLabels = ['Efecto', 'Estadísticas', 'Precio'];
-  activeTab = signal(0);
+  card = this.store.card;
+  error = this.store.error;
+
+  readonly tabs: TabLink[] = [
+    { label: 'Efecto', link: 'effect' },
+    { label: 'Estadísticas', link: 'stats' },
+    { label: 'Precio', link: 'price' },
+  ];
 }

@@ -1,0 +1,15 @@
+@if (card(); as card) {
+  @if (card.attribute || card.level || card.atk !== undefined) {
+    @if (card.attribute) {
+      <p><strong>Atributo:</strong> {{ card.attribute }}</p>
+    }
+    @if (card.level) {
+      <p><strong>Nivel:</strong> {{ card.level }}</p>
+    }
+    @if (card.atk !== undefined) {
+      <p><strong>ATK:</strong> {{ card.atk }} / <strong>DEF:</strong> {{ card.def }}</p>
+    }
+  } @else {
+    <p class="empty">Esta carta no tiene estadísticas (no es un monstruo).</p>
+  }
+}
