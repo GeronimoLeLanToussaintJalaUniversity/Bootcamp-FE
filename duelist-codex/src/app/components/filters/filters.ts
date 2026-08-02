@@ -35,4 +35,12 @@ export class Filters {
     const value = (event.target as HTMLInputElement).value;
     this[target].set(value === '' ? null : Number(value));
   }
+
+  onTypeChange(event: Event): void {
+    this.type.set((event.target as HTMLSelectElement).value);
+  }
+
+  onAttributeChange(event: Event): void {
+    this.attribute.set((event.target as HTMLSelectElement).value);
+  }
 }

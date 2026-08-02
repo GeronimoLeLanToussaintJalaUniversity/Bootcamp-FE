@@ -1,4 +1,18 @@
-<article class="card-item" [appHighlightCard]="card()" [routerLink]="['/card', card().id]">
+<article
+  class="card-item"
+  [class.focused-card]="isFocused()"
+  [appHighlightCard]="card()"
+  [routerLink]="['/card', card().id]"
+>
+  <button
+    type="button"
+    class="focus-btn"
+    [class.active]="isFocused()"
+    [attr.aria-label]="isFocused() ? 'Quitar carta en foco' : 'Poner carta en foco'"
+    (click)="onFocusToggle($event)"
+  >
+    📌
+  </button>
   <button
     type="button"
     class="favorite-btn"

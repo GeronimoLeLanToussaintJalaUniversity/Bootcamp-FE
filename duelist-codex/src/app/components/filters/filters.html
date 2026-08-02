@@ -1,20 +1,12 @@
 <div class="filters">
-  <select
-    class="filter-select"
-    [value]="type()"
-    (change)="type.set($any($event.target).value)"
-  >
+  <select class="filter-select" [value]="type()" (change)="onTypeChange($event)">
     <option value="">Todos los tipos</option>
     @for (cardType of types; track cardType) {
     <option [value]="cardType">{{ cardType }}</option>
     }
   </select>
 
-  <select
-    class="filter-select"
-    [value]="attribute()"
-    (change)="attribute.set($any($event.target).value)"
-  >
+  <select class="filter-select" [value]="attribute()" (change)="onAttributeChange($event)">
     <option value="">Todos los atributos</option>
     @for (cardAttribute of attributes; track cardAttribute) {
     <option [value]="cardAttribute">{{ cardAttribute }}</option>

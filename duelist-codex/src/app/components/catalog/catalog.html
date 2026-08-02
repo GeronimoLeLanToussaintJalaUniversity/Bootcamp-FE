@@ -2,41 +2,53 @@
 
 <a class="collection-link" routerLink="/collection">Mi colección ({{ favoritesCount() }})</a>
 
-<app-search-bar [(term)]="searchTerm" />
+<div class="layout">
+  <aside class="sidebar">
+    <app-focused-card [card]="focusedCard()" (focusToggle)="toggleFocus($event)" />
+  </aside>
 
-<app-filters
-  [(type)]="type"
-  [(attribute)]="attribute"
-  [(atkMin)]="atkMin"
-  [(atkMax)]="atkMax"
-  [(defMin)]="defMin"
-  [(defMax)]="defMax"
-/>
+  <div class="main">
+    <app-search-bar [(term)]="searchTerm" />
 
-@if (loading()) {
-<p class="status">Cargando cartas...</p>
-}
+    <app-filters
+      [(type)]="type"
+      [(attribute)]="attribute"
+      [(atkMin)]="atkMin"
+      [(atkMax)]="atkMax"
+      [(defMin)]="defMin"
+      [(defMax)]="defMax"
+    />
 
-@if (error()) {
-<p class="status error">{{ error() }}</p>
-}
+    @if (loading()) {
+    <p class="status">Cargando cartas...</p>
+    }
 
-@if (!loading() && !error()) {
-<div class="grid">
-  @for (card of filteredCards(); track card.id) {
-  @defer (on viewport) {
-  <app-card-item [card]="card" />
-  } @placeholder {
-  <div class="card-placeholder"></div>
-  }
-  } @empty {
-  @if (hasActiveFilters()) {
-  <p class="status">No se encontraron cartas con los filtros aplicados.</p>
-  } @else {
-  <p class="status">No se encontraron cartas.</p>
-  }
-  }
+    @if (error()) {
+    <p class="status error">{{ error() }}</p>
+    }
+
+    @if (!loading() && !error()) {
+    <div class="grid">
+      @for (card of filteredCards(); track card.id) {
+      @defer (on viewport) {
+      <app-card-item
+        [card]="card"
+        [isFocused]="focusedCard()?.id === card.id"
+        (focusToggle)="toggleFocus($event)"
+      />
+      } @placeholder {
+      <div class="card-placeholder"></div>
+      }
+      } @empty {
+      @if (hasActiveFilters()) {
+      <p class="status">No se encontraron cartas con los filtros aplicados.</p>
+      } @else {
+      <p class="status">No se encontraron cartas.</p>
+      }
+      }
+    </div>
+    }
+  </div>
 </div>
-}
 
 <router-outlet />

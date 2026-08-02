@@ -28,6 +28,27 @@
   color: #facc15;
 }
 
+.focus-btn {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.focus-btn.active {
+  color: #38bdf8;
+}
+
+.card-item.focused-card {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px #38bdf8;
+}
+
 .card-item img {
   width: 100%;
   border-radius: 0.5rem;

@@ -132,7 +132,7 @@ Efecto, Estadísticas y Precio dejaron de ser un `@switch` local y ahora son 3 r
 
 - **`Tabs` se mantiene domain-agnostic a propósito**: en vez de que `Tabs` conozca las 3 secciones de una carta, `CardDetail` es quien arma el array `TabLink[]` y se lo pasa. `Tabs` solo entiende "lista de (label, link)", por lo que serviría igual para cualquier otro conjunto de sub-vistas en rutas de esta o de otra app.
 - **Rutas relativas (`'effect'`, no `'/effect'`)**: como estas rutas son hijas de `card/:id`, `routerLink` las resuelve relativas a esa ruta activa. Si se navega desde `CardItem` a otra carta, no hace falta reconstruir el path completo.
-- **Sin `effect()` para "sincronizar" estado**: una primera versión tenía a `CardDetail` con su propio signal `card`, copiándolo al store con un `effect()`. Es el anti-patrón que se remarcó en clase (`effect()` como último recurso, no para propagar estado). Se corrigió: `CardDetailStore` es el único dueño del signal, `CardDetail` expone una referencia directa (`card = this.store.card`), no una copia.
+- **Sin `effect()` para "sincronizar" estado**: `CardDetailStore` es el único dueño del signal `card`; `CardDetail` expone una referencia directa (`card = this.store.card`), no una copia propia. Copiar el valor del store a un signal local con un `effect()` sería el anti-patrón que se remarcó en clase (`effect()` como último recurso, no para propagar estado) — leyendo la misma fuente directamente no hace falta ninguna sincronización.
 - Se agregó `{ path: '**', redirectTo: '' }` como última entrada del array de rutas (nivel raíz, hermana de la ruta `''` de `Catalog`) — cualquier URL que no matchee ninguna ruta redirige al catálogo, en vez de romper o quedar en blanco.
 - **El resolver no devuelve la carta por `route.data`, llama al store directo**: en vez de que `cardResolver` retorne el `Card` y `CardDetail` lo lea de `route.data`, el resolver llama `store.load(id)` y no devuelve nada. Evita tener el mismo dato en dos lugares.
 - **Se sacó `loading` del store y de `card-detail.html`**: con el resolver bloqueando la navegación hasta tener los datos, `CardDetail` nunca llega a renderizarse con `loading() === true` — era código muerto. Mientras se resuelve, lo que se ve es la pantalla anterior (el catálogo, que no se destruye) sin ningún indicador.
@@ -256,3 +256,21 @@ Solo se podía buscar por nombre. Esta historia agrega filtro por tipo de carta,
 - **Tipo y atributo al servidor, ATK/DEF al cliente**: es una solución híbrida forzada por una limitación real de la API (un solo operador de comparación por campo por request), no una elección arbitraria — filtrar todo en el cliente hubiera sido más simple pero renunciaba a la práctica de mandar los filtros que la API sí soporta bien.
 - **Un solo `computed()` (`serverFilters`) como fuente de verdad para el `resource()`**: evita que cambiar un filtro dispare una petición con los demás desactualizados; todos los criterios activos viajan juntos en cada re-fetch.
 - **`Filters` como componente dumb separado de `SearchBar`**: mismo criterio de Smart/Dumb Components ya usado en el proyecto — cada uno expone su propio estado vía `model()`, `Catalog` es el único que combina todo.
+
+### HU-05 — No perder mi selección mientras exploro
+
+Al buscar o filtrar, no había forma de "marcar" una carta candidata y seguir explorando otras sin perderla — cada nueva búsqueda reemplazaba por completo la lista, sin ningún estado que sobreviviera a eso.
+
+#### Cómo funciona
+
+- `Catalog.focusedCard` es un `linkedSignal<Card[], Card | null>` cuyo `source` es `cards()` (el resultado ya traído de la API). Su `computation` recibe la lista nueva y el valor anterior (`previous`): si la carta en foco sigue apareciendo en los nuevos resultados, usa esa versión fresca (por si cambió algún dato, ej. el precio); si no aparece, conserva la versión anterior en vez de perderla. En ningún caso se resetea a `null` solo por buscar de nuevo.
+- `toggleFocus(card)` (llamado al hacer click en el botón 📌 de una `CardItem`, esté en el grid o en el sidebar) hace `focusedCard.update(...)`: si la carta clickeada ya era la que estaba en foco, la quita (`null`); si no, la reemplaza. Esta es la única forma en que el valor cambia fuera de la derivación automática.
+- `CardItem` recibe `isFocused` (`input`) y emite `focusToggle` (`output<Card>`) — no conoce ni depende de `Catalog` ni del `linkedSignal`, solo informa que se clickeó el botón. `Catalog` es quien decide qué hacer con eso.
+- `catalog.html` usa un layout de dos columnas (`.layout`): un `<aside class="sidebar">` fijo (`position: sticky`) a la izquierda con `FocusedCard`, y el catálogo/buscador/filtros a la derecha.
+- `FocusedCard` (`components/focused-card/`), componente dumb nuevo: recibe `card` (`input<Card | null>`) y emite `focusToggle` (`output<Card>`), sin conocer `linkedSignal` ni `Catalog`. Internamente reutiliza la misma `app-card-item` para mostrar la carta en foco (mismo look que en el grid), o un placeholder si no hay ninguna. `Catalog` solo le pasa `focusedCard()` y escucha el evento.
+
+#### Decisiones
+
+- **`linkedSignal`, no un signal plano**: un `signal<Card | null>(null)` seteado a mano hubiera bastado para "no perder la selección", pero no tiene forma de enterarse de que la carta en foco volvió a aparecer en una búsqueda con datos más frescos (ej. el precio cambió) — quedaría con la referencia vieja para siempre. `linkedSignal` sincroniza con `cards()` cuando la carta sigue estando en los resultados, y conserva el valor anterior cuando no está, sin perderlo.
+- **`computed()` tampoco alcanza**: es de solo lectura, no hay forma de que el click en 📌 lo modifique — haría falta un signal aparte para el override y lógica extra para combinarlo con la derivación. `linkedSignal` resuelve ambas cosas (derivar de `cards()` y aceptar `.update()` directo) en un solo primitivo.
+- **`focusedCard` vive en `Catalog`, no en un servicio global** (a diferencia de `FavoritesStore`): es intencionalmente una selección de "sesión de exploración", no un dato persistente entre navegaciones — no tendría sentido que sobreviva a salir del catálogo.

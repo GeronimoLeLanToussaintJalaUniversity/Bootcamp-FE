@@ -1,0 +1,6 @@
+<h2 class="title">Carta en foco</h2>
+@if (card(); as focused) {
+<app-card-item [card]="focused" [isFocused]="true" (focusToggle)="focusToggle.emit($event)" />
+} @else {
+<p class="empty">Marcá una carta con 📌 para fijarla acá mientras explorás.</p>
+}

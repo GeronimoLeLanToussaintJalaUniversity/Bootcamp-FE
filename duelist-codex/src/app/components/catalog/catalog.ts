@@ -1,16 +1,18 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal, resource, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CardService } from '../../services/card';
+import { Card } from '../../models/card.model';
 import { CardItem } from '../card-item/card-item';
 import { SearchBar } from '../search-bar/search-bar';
 import { Filters } from '../filters/filters';
+import { FocusedCard } from '../focused-card/focused-card';
 import { FavoritesStore } from '../../services/favorites';
 
 @Component({
   selector: 'app-catalog',
-  imports: [CardItem, SearchBar, Filters, RouterLink, RouterOutlet],
+  imports: [CardItem, SearchBar, Filters, FocusedCard, RouterLink, RouterOutlet],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
@@ -79,4 +81,17 @@ export class Catalog {
       this.defMin() !== null ||
       this.defMax() !== null,
   );
+
+  focusedCard = linkedSignal<Card[], Card | null>({
+    source: this.cards,
+    computation: (newCards, previous) => {
+      if (!previous?.value) return null;
+      const refreshed = newCards.find((card) => card.id === previous.value!.id);
+      return refreshed ?? previous.value;
+    },
+  });
+
+  toggleFocus(card: Card): void {
+    this.focusedCard.update((current) => (current?.id === card.id ? null : card));
+  }
 }
