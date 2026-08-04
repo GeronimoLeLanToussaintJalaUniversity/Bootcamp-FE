@@ -206,6 +206,7 @@ El manejo de errores de la API estaba duplicado: cada método de `CardService` e
 - `errorInterceptor` (`interceptors\error.interceptor.ts`): interceptor funcional de `HttpClient` que intercepta toda respuesta con error, la traduce a un mensaje legible según el código de estado (`0` sin conexión, `404` recurso inexistente, `>=500` error de servidor, resto genérico), y la vuelve a lanzar como un `Error` con ese mensaje.
 - Registrado una sola vez en `app.config.ts` vía `provideHttpClient(withInterceptors([errorInterceptor]))` — aplica a todas las requests salientes sin tocar cada servicio.
 - `Catalog` ahora carga las cartas con `resource()` en vez de signals manuales: `cardsResource = resource({ loader: () => this.cardService.getCards() })`. `cards`, `loading` y `error` son `computed()` derivados de `cardsResource.value()`, `.isLoading()` y `.error()` — ya no hay `ngOnInit` ni `loadCards()` propio.
+- `cards` chequea `cardsResource.hasValue()` antes de leer `.value()`: cuando el `resource()` está en estado de error, `.value()` lanza una excepción (es el diseño de la API — obliga a chequear `.error()`/`.hasValue()` antes de leerlo). `.error()`, en cambio, siempre se puede leer sin problema, esté el resource en el estado que esté.
 
 #### Decisiones
 

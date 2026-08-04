@@ -51,7 +51,7 @@ export class Catalog {
       }),
   });
 
-  cards = computed(() => this.cardsResource.value() ?? []);
+  cards = computed(() => (this.cardsResource.hasValue() ? this.cardsResource.value() : []));
   loading = computed(() => this.cardsResource.isLoading());
   error = computed(() => {
     const err = this.cardsResource.error();
