@@ -8,15 +8,15 @@
   </aside>
 
   <div class="main">
-    <app-search-bar [(term)]="searchTerm" />
+    <app-search-bar (termChange)="searchTerm.set($event)" />
 
     <app-filters
-      [(type)]="type"
-      [(attribute)]="attribute"
-      [(atkMin)]="atkMin"
-      [(atkMax)]="atkMax"
-      [(defMin)]="defMin"
-      [(defMax)]="defMax"
+      (typeChange)="type.set($event)"
+      (attributeChange)="attribute.set($event)"
+      (atkMinChange)="atkMin.set($event)"
+      (atkMaxChange)="atkMax.set($event)"
+      (defMinChange)="defMin.set($event)"
+      (defMaxChange)="defMax.set($event)"
     />
 
     @if (loading()) {

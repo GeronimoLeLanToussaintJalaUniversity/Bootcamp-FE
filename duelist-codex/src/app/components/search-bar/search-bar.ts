@@ -1,4 +1,4 @@
-import { Component, model } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 
 @Component({
   selector: 'app-search-bar',
@@ -6,10 +6,12 @@ import { Component, model } from '@angular/core';
   styleUrl: './search-bar.css',
 })
 export class SearchBar {
-  term = model('');
+  term = signal('');
+  termChange = output<string>();
 
   onInput(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.term.set(value);
+    this.termChange.emit(value);
   }
 }

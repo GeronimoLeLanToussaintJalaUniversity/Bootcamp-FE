@@ -246,7 +246,7 @@ Solo se podía buscar por nombre. Esta historia agrega filtro por tipo de carta,
 
 #### Cómo funciona
 
-- `Filters` (`components/filters/`), componente nuevo: expone `type`, `attribute`, `atkMin`, `atkMax`, `defMin`, `defMax` como `model()`, mismo patrón two-way binding que `SearchBar.term`. Los `<select>` de tipo/atributo usan listas fijas (`CARD_TYPES`, `CARD_ATTRIBUTES`); los rangos de ATK/DEF son inputs numéricos.
+- `Filters` (`components/filters/`), componente nuevo: `type`, `attribute`, `atkMin`, `atkMax`, `defMin`, `defMax` son signals internos del propio componente — `Catalog` nunca los escribe desde afuera, solo escucha sus `output()` (`typeChange`, `attributeChange`, etc.) para enterarse de cada cambio. Los `<select>` de tipo/atributo usan listas fijas (`CARD_TYPES`, `CARD_ATTRIBUTES`); los rangos de ATK/DEF son inputs numéricos. Mismo criterio en `SearchBar`: `term` es estado interno, `Catalog` solo escucha `termChange`.
 - `CardService.getCards` ahora recibe un objeto `CardFilters` (`{ name?, type?, attribute? }`) en vez de un string suelto, y arma los `HttpParams` (`fname`, `type`, `attribute`) según cuáles vengan definidos.
 - `Catalog.serverFilters` es un `computed()` que combina `debouncedSearchTerm`, `type()` y `attribute()` en un solo objeto — esa es la única fuente de verdad que lee `cardsResource.params`, así que cualquier cambio en cualquiera de los tres dispara un solo re-fetch con todos los criterios activos juntos, no uno por separado.
 - ATK/DEF quedan fuera de `serverFilters` porque la API solo acepta **un límite por request** (`atk=gte1000` o `atk=lte2000`, nunca ambos a la vez en la misma consulta) — no soporta rango real. Por eso `filteredCards` es un segundo `computed()` que aplica `atkMin`/`atkMax`/`defMin`/`defMax` en el cliente, sobre el resultado ya filtrado por nombre/tipo/atributo del lado del servidor.
@@ -256,7 +256,7 @@ Solo se podía buscar por nombre. Esta historia agrega filtro por tipo de carta,
 
 - **Tipo y atributo al servidor, ATK/DEF al cliente**: es una solución híbrida forzada por una limitación real de la API (un solo operador de comparación por campo por request), no una elección arbitraria — filtrar todo en el cliente hubiera sido más simple pero renunciaba a la práctica de mandar los filtros que la API sí soporta bien.
 - **Un solo `computed()` (`serverFilters`) como fuente de verdad para el `resource()`**: evita que cambiar un filtro dispare una petición con los demás desactualizados; todos los criterios activos viajan juntos en cada re-fetch.
-- **`Filters` como componente dumb separado de `SearchBar`**: mismo criterio de Smart/Dumb Components ya usado en el proyecto — cada uno expone su propio estado vía `model()`, `Catalog` es el único que combina todo.
+- **`Filters` como componente dumb separado de `SearchBar`**: mismo criterio de Smart/Dumb Components ya usado en el proyecto — cada uno maneja su propio estado y solo avisa hacia afuera con `output()`, `Catalog` es el único que combina todo.
 
 ### HU-05 — No perder mi selección mientras exploro
 
